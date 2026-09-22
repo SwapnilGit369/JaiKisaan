@@ -3,134 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kisan AI Expert</title>
-    <meta name="theme-color" content="#2e7d32">
+    <title>Kisan AI Pro</title>
+    <meta name="theme-color" content="#10b981">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; }
-        header { background-color: #2e7d32; color: white; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; }
-        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { background-color: #2e7d32; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        button:hover { background-color: #1b5e20; }
-        .btn-small { padding: 5px 10px; font-size: 12px; width: auto; display: inline-block; margin-right: 5px; }
-        .btn-delete { background-color: #d32f2f; }
-        .btn-edit { background-color: #1976d2; }
-        .alert { background-color: #fff3cd; color: #856404; padding: 10px; border-left: 4px solid #ffeeba; margin-top: 10px; font-size: 14px; }
-        .plot-item { border-bottom: 1px solid #eee; padding: 15px 0; }
-        .mandi-weather { display: flex; gap: 10px; }
-        .half { flex: 1; background: #e3f2fd; padding: 10px; border-radius: 8px; text-align: center; font-size: 14px; cursor: pointer; border: 1px solid #90caf9;}
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+        }
+
+        body { 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 0; 
+            padding-bottom: 20px;
+        }
+
+        .header-gradient { 
+            background: linear-gradient(135deg, #34d399 0%, #059669 100%); 
+            color: white; 
+            padding: 30px 20px 40px 20px; 
+            text-align: center; 
+            border-bottom-left-radius: 30px; 
+            border-bottom-right-radius: 30px; 
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+            margin-bottom: -20px;
+        }
         
-        /* Modal (Popup) CSS */
-        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 85%; border-radius: 8px; }
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
-        .mandi-list { margin-top: 15px; }
-        .mandi-list div { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;}
+        .header-gradient h2 { margin: 0; font-size: 26px; letter-spacing: 0.5px; }
+        .header-gradient p { margin: 5px 0 0 0; opacity: 0.9; font-size: 14px; }
+
+        .container { padding: 0 15px; position: relative; z-index: 10; }
+
+        .card { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 16px; 
+            margin-bottom: 15px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); 
+            transition: transform 0.2s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .card h3 { margin-top: 0; display: flex; align-items: center; gap: 8px; color: var(--primary-dark); }
+
+        input, select { 
+            width: 100%; 
+            padding: 12px 15px; 
+            margin: 8px 0 15px 0; 
+            border: 1.5px solid #e5e7eb; 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            font-size: 15px;
+            background-color: #f9fafb;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, select:focus { outline: none; border-color: var(--primary); background-color: #fff; }
+
+        button.main-btn { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            width: 100%; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: 600; 
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+            transition: opacity 0.2s;
+        }
+        button.main-btn:active { opacity: 0.8; transform: scale(0.98); }
+
+        .btn-small { padding: 6px 12px; font-size: 13px; border-radius: 6px; border: none; color: white; cursor: pointer; margin-right: 5px; font-weight: 500;}
+        .btn-edit { background-color: #3b82f6; }
+        .btn-delete { background-color: #ef4444; }
+
+        .mandi-weather { display: flex; gap: 12px; margin-bottom: 15px; }
+        .widget { 
+            flex: 1; 
+            background: white; 
+            padding: 15px; 
+            border-radius: 16px; 
+            text-align: center; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+        }
+        .widget strong { color: var(--text-main); font-size: 15px; display: block; margin-bottom: 5px;}
+        .widget span { color: var(--primary-dark); font-weight: 600; font-size: 14px; }
+
+        .alert { background-color: #fef3c7; color: #92400e; padding: 12px; border-radius: 8px; border-left: 5px solid #f59e0b; margin-top: 10px; font-size: 13px; font-weight: 500; }
+        
+        .plot-item { border-bottom: 1px solid #f3f4f6; padding: 15px 0; }
+        .plot-item:last-child { border-bottom: none; }
+        .plot-tag { display: inline-block; background: #e0e7ff; color: #4338ca; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 8px; }
+
+        /* Modal CSS */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); backdrop-filter: blur(4px); }
+        .modal-content { background-color: #fff; margin: 20% auto; padding: 25px; border-radius: 20px; width: 80%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .close { color: #9ca3af; float: right; font-size: 24px; font-weight: bold; cursor: pointer; }
+        .mandi-list div { padding: 12px 0; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; font-size: 15px;}
+        
+        .file-upload-wrapper { position: relative; margin-bottom: 15px; }
+        .file-upload-wrapper input[type="file"] { position: absolute; left: 0; top: 0; opacity: 0; height: 100%; cursor: pointer; }
+        .custom-file-upload { display: block; background: #f0fdf4; border: 2px dashed #86efac; color: #15803d; text-align: center; padding: 20px; border-radius: 10px; font-weight: 500; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h2>Kisan AI Expert</h2>
-        <p style="margin: 0; font-size: 14px;">Smart Farming, Smart Alerts</p>
-    </header>
+    <div class="header-gradient">
+        <h2>Kisan AI Pro</h2>
+        <p>Smart Farming, Modern Solutions</p>
+    </div>
 
-    <!-- Weather and Mandi Section -->
-    <div class="mandi-weather">
-        <div class="half" id="weatherWidget">
-            <strong>🌤 Weather</strong><br>
-            Clear (No Rain)
+    <div class="container">
+        <!-- Weather & Mandi Widgets -->
+        <div class="mandi-weather">
+            <div class="widget">
+                <strong>🌤 Weather</strong>
+                <span>Clear (No Rain)</span>
+            </div>
+            <div class="widget" onclick="openMandiModal()">
+                <strong>🌾 Mandi Bhav</strong>
+                <span>Tap to Check</span>
+            </div>
         </div>
-        <div class="half" id="mandiWidget" onclick="openMandiModal()">
-            <strong>🌾 Mandi Bhav</strong><br>
-            Click to View Prices
+
+        <!-- AI Disease Detection -->
+        <div class="card">
+            <h3>🔍 AI Plant Doctor</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: -5px;">Bimari wali fasal ki photo scan karein</p>
+            <div class="file-upload-wrapper">
+                <div class="custom-file-upload">📸 Tap to Upload Photo</div>
+                <input type="file" id="plantPhoto" accept="image/*" onchange="updateFileName(this)">
+            </div>
+            <button class="main-btn" onclick="detectDisease(event)">Start AI Scan</button>
+            <div id="aiResult" style="display: none; margin-top: 15px; padding: 15px; background: #ecfdf5; border-radius: 10px; font-size: 14px; border: 1px solid #a7f3d0;"></div>
+        </div>
+
+        <!-- Add New Crop/Plot -->
+        <div class="card" id="formCard">
+            <h3 id="formTitle">🌱 Naya Khet Jodein</h3>
+            <input type="hidden" id="editIndex" value="-1">
+            
+            <label style="font-size: 13px; font-weight: 600; color: var(--text-muted);">Khet Ka Naam</label>
+            <input type="text" id="plotName" placeholder="e.g., Baadi ya Semalwala">
+            
+            <label style="font-size: 13px; font-weight: 600; color: var(--text-muted);">Fasal (Crop)</label>
+            <select id="cropType">
+                <option value="Soybean">Soybean</option>
+                <option value="Cotton">Cotton</option>
+                <option value="Chickpea">Chickpea (Chana)</option>
+            </select>
+            
+            <label style="font-size: 13px; font-weight: 600; color: var(--text-muted);">Bone Ki Date (Sowing)</label>
+            <input type="date" id="sowingDate">
+            
+            <label style="font-size: 13px; font-weight: 600; color: var(--text-muted);">Area (Bigha)</label>
+            <input type="number" id="areaBigha" placeholder="Kitne Bigha? (e.g., 2)">
+            
+            <button class="main-btn" id="saveBtn" onclick="savePlot()">Khet Save Karein</button>
+        </div>
+
+        <!-- Plots Dashboard -->
+        <div class="card">
+            <h3>📊 Aapki Fasalein</h3>
+            <div id="plotsContainer">Loading...</div>
         </div>
     </div>
 
-    <!-- Mandi Modal (Popup) -->
+    <!-- Mandi Modal -->
     <div id="mandiModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeMandiModal()">&times;</span>
-            <h3>📊 Mandi Bhav</h3>
-            <label style="font-size: 14px; font-weight: bold;">Mandi Chunein:</label>
-            <select id="mandiSelect" onchange="loadMandiPrices()">
+            <h3 style="margin-top: 0; color: var(--primary-dark);">Mandi Bhav</h3>
+            <select id="mandiSelect" onchange="loadMandiPrices()" style="margin-top: 10px;">
                 <option value="Dhamnod">Dhamnod Mandi</option>
                 <option value="Indore">Indore Mandi</option>
                 <option value="Khargone">Khargone Mandi</option>
             </select>
-            <div id="mandiPrices" class="mandi-list">
-                <!-- Prices will be loaded here via JS -->
-            </div>
+            <div id="mandiPrices" class="mandi-list"></div>
         </div>
     </div>
 
-    <!-- AI Disease Detection Section -->
-    <div class="card">
-        <h3>🔍 Plant Disease Detection</h3>
-        <p style="font-size: 12px; color: gray;">Bimari wali fasal ki photo chunein</p>
-        <input type="file" id="plantPhoto" accept="image/*">
-        <button onclick="detectDisease()">Check Disease with AI</button>
-        <div id="aiResult" style="display: none; margin-top: 15px; padding: 10px; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 5px;"></div>
-    </div>
-
-    <!-- Add New Crop/Plot -->
-    <div class="card" id="formCard">
-        <h3 id="formTitle">🌱 Naya Khet Jodein</h3>
-        <input type="hidden" id="editIndex" value="-1">
-        <input type="text" id="plotName" placeholder="Khet ka naam (e.g., Baadi)">
-        <select id="cropType">
-            <option value="Soybean">Soybean</option>
-            <option value="Cotton">Cotton</option>
-            <option value="Chickpea">Chickpea (Chana)</option>
-        </select>
-        <label style="font-size: 14px; font-weight: bold; margin-top: 10px; display: block;">Bone ki Date (Sowing Date):</label>
-        <input type="date" id="sowingDate">
-        <input type="number" id="areaBigha" placeholder="Kitne Bigha me hai? (e.g., 2)">
-        <button id="saveBtn" onclick="savePlot()">Khet Save Karein</button>
-    </div>
-
-    <!-- Plots Dashboard -->
-    <div class="card">
-        <h3>📊 Aapki Fasalein</h3>
-        <div id="plotsContainer">Niche aapke khet dikhenge...</div>
-    </div>
-
     <script>
-        // Standard Crop Schedules
         const cropSchedules = {
             "Soybean": [
-                { day: 20, action: "Weedicide Spray (Kharpatwarnashak)", dose: "Dose: 1 Bigha = 5 Pump." },
-                { day: 45, action: "Fungicide & NPK 19:19:19", dose: "Dose: NPK 100g/Pump. (Total 500g in 5 Pump for 1 Bigha)." },
-                { day: 60, action: "Insecticide (Ampligo)", dose: "Dose: 10ml/Pump. (Total 50ml in 5 Pump for 1 Bigha)." },
-                { day: 90, action: "Pod Development - NPK 0:0:50", dose: "Dose: 100g/Pump. (1 Bigha = 5 Pump)." }
+                { day: 20, action: "Weedicide Spray (Kharpatwarnashak)", dose: "1 Bigha = 5 Pump." },
+                { day: 45, action: "Fungicide & NPK 19:19:19", dose: "NPK 100g/Pump. (500g in 5 Pump for 1 Bigha)." },
+                { day: 60, action: "Insecticide (Ampligo)", dose: "10ml/Pump. (50ml in 5 Pump for 1 Bigha)." },
+                { day: 90, action: "Pod Development - NPK 0:0:50", dose: "100g/Pump. (1 Bigha = 5 Pump)." }
             ],
             "Cotton": [
-                { day: 45, action: "Square Formation - NPK 0:52:34", dose: "Dose: 100g/Pump. 1 Bigha = 5 Pump." },
-                { day: 60, action: "Insecticide for Whitefly", dose: "Dose: 1 Bigha = 5 Pump." },
-                { day: 90, action: "Boll Development - NPK 13:0:45", dose: "Dose: 100g/Pump. 1 Bigha = 5 Pump." }
+                { day: 45, action: "Square Formation - NPK 0:52:34", dose: "100g/Pump. 1 Bigha = 5 Pump." },
+                { day: 60, action: "Insecticide for Whitefly", dose: "1 Bigha = 5 Pump." },
+                { day: 90, action: "Boll Development - NPK 13:0:45", dose: "100g/Pump. 1 Bigha = 5 Pump." }
             ],
             "Chickpea": [
-                { day: 30, action: "First Irrigation & Foliar Spray", dose: "Dose: NPK 19:19:19 100g/Pump. 1 Bigha = 5 Pump." },
-                { day: 60, action: "Flowering stage - Insecticide", dose: "Dose: Coragen 6ml/Pump. 1 Bigha = 5 Pump." }
+                { day: 30, action: "First Irrigation & Foliar Spray", dose: "NPK 19:19:19 100g/Pump. 1 Bigha = 5 Pump." },
+                { day: 60, action: "Flowering stage - Insecticide", dose: "Coragen 6ml/Pump. 1 Bigha = 5 Pump." }
             ]
         };
 
-        // Dummy Mandi Data
         const mandiData = {
-            "Dhamnod": [ { crop: "Soybean", price: "₹4500 - ₹4650/Q" }, { crop: "Cotton (Kapas)", price: "₹6800 - ₹7100/Q" }, { crop: "Chickpea (Chana)", price: "₹5200 - ₹5400/Q" } ],
-            "Indore": [ { crop: "Soybean", price: "₹4600 - ₹4750/Q" }, { crop: "Cotton (Kapas)", price: "₹6900 - ₹7200/Q" }, { crop: "Chickpea (Chana)", price: "₹5300 - ₹5500/Q" } ],
-            "Khargone": [ { crop: "Soybean", price: "₹4450 - ₹4600/Q" }, { crop: "Cotton (Kapas)", price: "₹6850 - ₹7150/Q" }, { crop: "Chickpea (Chana)", price: "₹5100 - ₹5350/Q" } ]
+            "Dhamnod": [ { crop: "Soybean", price: "₹4500 - ₹4650/Q" }, { crop: "Cotton", price: "₹6800 - ₹7100/Q" }, { crop: "Chickpea", price: "₹5200 - ₹5400/Q" } ],
+            "Indore": [ { crop: "Soybean", price: "₹4600 - ₹4750/Q" }, { crop: "Cotton", price: "₹6900 - ₹7200/Q" }, { crop: "Chickpea", price: "₹5300 - ₹5500/Q" } ],
+            "Khargone": [ { crop: "Soybean", price: "₹4450 - ₹4600/Q" }, { crop: "Cotton", price: "₹6850 - ₹7150/Q" }, { crop: "Chickpea", price: "₹5100 - ₹5350/Q" } ]
         };
 
         let plots = JSON.parse(localStorage.getItem('farmerPlots')) || [];
+
+        function updateFileName(input) {
+            const fileName = input.files[0] ? input.files[0].name : "📸 Tap to Upload Photo";
+            input.previousElementSibling.innerText = fileName;
+        }
 
         function renderPlots() {
             const container = document.getElementById('plotsContainer');
             container.innerHTML = '';
             
             if(plots.length === 0) {
-                container.innerHTML = '<p style="color: gray; font-size: 14px;">Abhi koi khet nahi joda gaya hai.</p>';
+                container.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Abhi koi khet nahi joda gaya hai.</p>';
                 return;
             }
 
@@ -140,13 +240,13 @@
                 const diffTime = Math.abs(today - sowingDate);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-                let nextAction = "Fasal pakne ke kareeb hai ya schedule me agla task nahi hai.";
+                let nextAction = "Schedule me agla task nahi hai.";
                 let alertHtml = "";
                 const schedule = cropSchedules[plot.crop] || [];
                 
                 for(let task of schedule) {
                     if(diffDays <= task.day) {
-                        nextAction = `Upcoming Day ${task.day}: ${task.action} <br> <b>${task.dose}</b>`;
+                        nextAction = `<span style="color:var(--text-main);font-weight:600;">Day ${task.day}: ${task.action}</span> <br> <span style="color:var(--primary-dark); font-size:13px;">Dose: ${task.dose}</span>`;
                         if((task.day - diffDays) <= 2 && (task.day - diffDays) >= 0) {
                             alertHtml = `<div class="alert">⚠️ ALERT: ${task.day - diffDays} din baad spray scheduled hai!</div>`;
                         }
@@ -156,13 +256,14 @@
 
                 container.innerHTML += `
                     <div class="plot-item">
-                        <strong>Khet: ${plot.name}</strong> (${plot.area} Bigha)<br>
-                        <span style="font-size: 14px; color: #555;">Fasal: ${plot.crop} | Age: <b>${diffDays} Days</b></span><br>
-                        <span style="font-size: 13px; color: #2e7d32;">Plan: ${nextAction}</span>
+                        <strong style="font-size:16px;">Khet: ${plot.name}</strong> 
+                        <span class="plot-tag">${plot.area} Bigha</span><br>
+                        <div style="font-size: 14px; color: var(--text-muted); margin: 5px 0;">Fasal: ${plot.crop} | Age: <b style="color:var(--primary-dark);">${diffDays} Days</b></div>
+                        <div style="font-size: 14px; background: #f9fafb; padding: 10px; border-radius: 8px; margin-top:8px;">${nextAction}</div>
                         ${alertHtml}
-                        <div style="margin-top: 10px;">
-                            <button class="btn btn-small btn-edit" onclick="editPlot(${index})">Edit</button>
-                            <button class="btn btn-small btn-delete" onclick="deletePlot(${index})">Delete</button>
+                        <div style="margin-top: 12px;">
+                            <button class="btn-small btn-edit" onclick="editPlot(${index})">Edit</button>
+                            <button class="btn-small btn-delete" onclick="deletePlot(${index})">Delete</button>
                         </div>
                     </div>
                 `;
@@ -176,27 +277,21 @@
             const area = document.getElementById('areaBigha').value;
             const editIndex = document.getElementById('editIndex').value;
 
-            if(!name || !date || !area) {
-                alert("Kripya sabhi details bharein!");
-                return;
-            }
+            if(!name || !date || !area) { alert("Kripya sabhi details bharein!"); return; }
 
             const plotData = { name, crop, date, area };
 
-            if(editIndex === "-1") {
-                plots.push(plotData); // New Plot
-            } else {
-                plots[parseInt(editIndex)] = plotData; // Update existing
+            if(editIndex === "-1") { plots.push(plotData); } 
+            else { 
+                plots[parseInt(editIndex)] = plotData; 
                 document.getElementById('editIndex').value = "-1";
                 document.getElementById('formTitle').innerText = "🌱 Naya Khet Jodein";
                 document.getElementById('saveBtn').innerText = "Khet Save Karein";
             }
 
             localStorage.setItem('farmerPlots', JSON.stringify(plots));
-            
             document.getElementById('plotName').value = '';
             document.getElementById('areaBigha').value = '';
-            
             renderPlots();
         }
 
@@ -214,65 +309,41 @@
             document.getElementById('cropType').value = plot.crop;
             document.getElementById('sowingDate').value = plot.date;
             document.getElementById('areaBigha').value = plot.area;
-            
             document.getElementById('editIndex').value = index;
             document.getElementById('formTitle').innerText = "✏️ Khet Edit Karein";
             document.getElementById('saveBtn').innerText = "Update Karein";
-            
             document.getElementById('formCard').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Mandi Modal Logic
-        function openMandiModal() {
-            document.getElementById('mandiModal').style.display = "block";
-            loadMandiPrices();
-        }
-
-        function closeMandiModal() {
-            document.getElementById('mandiModal').style.display = "none";
-        }
-
+        function openMandiModal() { document.getElementById('mandiModal').style.display = "block"; loadMandiPrices(); }
+        function closeMandiModal() { document.getElementById('mandiModal').style.display = "none"; }
         function loadMandiPrices() {
             const mandi = document.getElementById('mandiSelect').value;
-            const prices = mandiData[mandi] || [];
             let html = "";
-            prices.forEach(p => {
-                html += `<div><strong>${p.crop}</strong> <span>${p.price}</span></div>`;
-            });
+            (mandiData[mandi] || []).forEach(p => { html += `<div><strong>${p.crop}</strong> <span style="color:var(--primary-dark); font-weight:600;">${p.price}</span></div>`; });
             document.getElementById('mandiPrices').innerHTML = html;
         }
 
-        // Close modal if clicked outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('mandiModal');
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
+        window.onclick = function(event) { if (event.target == document.getElementById('mandiModal')) closeMandiModal(); }
 
-        function detectDisease() {
+        function detectDisease(event) {
             const file = document.getElementById('plantPhoto').files[0];
-            if(!file) {
-                alert("Pehle photo upload karein!");
-                return;
-            }
-            
+            if(!file) { alert("Pehle photo upload karein!"); return; }
             const btn = event.target;
-            btn.innerHTML = "Processing AI...";
-            btn.style.backgroundColor = "#555";
-            
+            btn.innerHTML = "Processing AI Scan...";
+            btn.style.opacity = "0.7";
             setTimeout(() => {
-                const resultDiv = document.getElementById('aiResult');
-                resultDiv.style.display = "block";
-                resultDiv.innerHTML = `
-                    <strong>AI Analysis Complete:</strong><br>
-                    <span style="color: red;">Detected: Viral Infection / Pest</span><br>
-                    <hr style="border: 0.5px solid #ccc;">
-                    <strong>Calculation:</strong> 1 Bigha = 5 Pump. Add prescribed chemical per pump.
+                document.getElementById('aiResult').style.display = "block";
+                document.getElementById('aiResult').innerHTML = `
+                    <strong style="color: var(--primary-dark);">✅ AI Analysis Complete</strong><br>
+                    <span style="color: #dc2626; font-weight: 600;">Detected: Pest Attack / Viral</span><br>
+                    <hr style="border: 0.5px solid #a7f3d0; margin: 10px 0;">
+                    <strong>Action:</strong> Spray required.<br>
+                    <strong>Calculation:</strong> 1 Bigha = 5 Pump.
                 `;
-                btn.innerHTML = "Check Disease with AI";
-                btn.style.backgroundColor = "#2e7d32";
-            }, 2000); 
+                btn.innerHTML = "Start AI Scan";
+                btn.style.opacity = "1";
+            }, 1500); 
         }
 
         window.onload = renderPlots;
