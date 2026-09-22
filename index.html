@@ -1,1 +1,183 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kisan AI Expert</title>
+    <meta name="theme-color" content="#2e7d32">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; }
+        header { background-color: #2e7d32; color: white; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #2e7d32; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button:hover { background-color: #1b5e20; }
+        .alert { background-color: #fff3cd; color: #856404; padding: 10px; border-left: 4px solid #ffeeba; margin-top: 10px; font-size: 14px; }
+        .plot-item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .mandi-weather { display: flex; gap: 10px; }
+        .half { flex: 1; background: #e3f2fd; padding: 10px; border-radius: 8px; text-align: center; font-size: 14px;}
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>Kisan AI Expert</h2>
+        <p style="margin: 0; font-size: 14px;">Smart Farming, Smart Alerts</p>
+    </header>
+
+    <!-- Weather and Mandi Section -->
+    <div class="mandi-weather">
+        <div class="half" id="weatherWidget">
+            <strong>🌤 Weather</strong><br>
+            Clear (No Rain)
+        </div>
+        <div class="half" id="mandiWidget">
+            <strong>🌾 Mandi Bhav</strong><br>
+            Soybean: ₹4500/Q
+        </div>
+    </div>
+
+    <!-- AI Disease Detection Section -->
+    <div class="card">
+        <h3>🔍 Plant Disease Detection</h3>
+        <p style="font-size: 12px; color: gray;">Bimari wali fasal ki photo chunein</p>
+        <input type="file" id="plantPhoto" accept="image/*">
+        <button onclick="detectDisease()">Check Disease with AI</button>
+        <div id="aiResult" style="display: none; margin-top: 15px; padding: 10px; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 5px;"></div>
+    </div>
+
+    <!-- Add New Crop/Plot -->
+    <div class="card">
+        <h3>🌱 Naya Khet Jodein</h3>
+        <input type="text" id="plotName" placeholder="Khet ka naam (e.g., Baadi)">
+        <select id="cropType">
+            <option value="Soybean">Soybean</option>
+            <option value="Cotton">Cotton</option>
+            <option value="Chickpea">Chickpea (Chana)</option>
+        </select>
+        <label style="font-size: 14px; font-weight: bold; margin-top: 10px; display: block;">Bone ki Date (Sowing Date):</label>
+        <input type="date" id="sowingDate">
+        <input type="number" id="areaBigha" placeholder="Kitne Bigha me hai? (e.g., 2)">
+        <button onclick="addPlot()">Khet Save Karein</button>
+    </div>
+
+    <!-- Plots Dashboard -->
+    <div class="card">
+        <h3>📊 Aapki Fasalein</h3>
+        <div id="plotsContainer">Niche aapke khet dikhenge...</div>
+    </div>
+
+    <script>
+        // Standard Crop Schedules (Dummy Data)
+        const cropSchedules = {
+            "Soybean": [
+                { day: 20, action: "Weedicide Spray (Kharpatwarnashak)", dose: "Dose: 1 Bigha = 5 Pump." },
+                { day: 45, action: "Fungicide & NPK 19:19:19", dose: "Dose: NPK 100g/Pump. (Total 500g in 5 Pump for 1 Bigha)." },
+                { day: 60, action: "Insecticide (Ampligo) for Caterpillars", dose: "Dose: 10ml/Pump. (Total 50ml in 5 Pump for 1 Bigha)." }
+            ],
+            "Cotton": [
+                { day: 45, action: "Square Formation - NPK 0:52:34", dose: "Dose: 100g/Pump. 1 Bigha = 5 Pump." }
+            ]
+        };
+
+        // Load plots from LocalStorage
+        let plots = JSON.parse(localStorage.getItem('farmerPlots')) || [];
+
+        function renderPlots() {
+            const container = document.getElementById('plotsContainer');
+            container.innerHTML = '';
+            
+            if(plots.length === 0) {
+                container.innerHTML = '<p style="color: gray; font-size: 14px;">Abhi koi khet nahi joda gaya hai.</p>';
+                return;
+            }
+
+            plots.forEach((plot, index) => {
+                // Calculate Crop Age
+                const sowingDate = new Date(plot.date);
+                const today = new Date();
+                const diffTime = Math.abs(today - sowingDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+                // Find next schedule
+                let nextAction = "No immediate action";
+                let alertHtml = "";
+                const schedule = cropSchedules[plot.crop] || [];
+                
+                for(let task of schedule) {
+                    if(diffDays <= task.day) {
+                        nextAction = `Upcoming Day ${task.day}: ${task.action} <br> <b>${task.dose}</b>`;
+                        // Trigger alert if task is within 2 days
+                        if((task.day - diffDays) <= 2 && (task.day - diffDays) >= 0) {
+                            alertHtml = `<div class="alert">⚠️ ALERT: 2 din baad spray scheduled hai. Sukha hone par pehle sinchai karein!</div>`;
+                        }
+                        break;
+                    }
+                }
+
+                container.innerHTML += `
+                    <div class="plot-item">
+                        <strong>Khet: ${plot.name}</strong> (${plot.area} Bigha)<br>
+                        <span style="font-size: 14px; color: #555;">Fasal: ${plot.crop} | Age: ${diffDays} Days</span><br>
+                        <span style="font-size: 13px; color: #2e7d32;">Plan: ${nextAction}</span>
+                        ${alertHtml}
+                    </div>
+                `;
+            });
+        }
+
+        function addPlot() {
+            const name = document.getElementById('plotName').value;
+            const crop = document.getElementById('cropType').value;
+            const date = document.getElementById('sowingDate').value;
+            const area = document.getElementById('areaBigha').value;
+
+            if(!name || !date || !area) {
+                alert("Kripya sabhi details bharein!");
+                return;
+            }
+
+            plots.push({ name, crop, date, area });
+            localStorage.setItem('farmerPlots', JSON.stringify(plots));
+            
+            // Clear inputs
+            document.getElementById('plotName').value = '';
+            document.getElementById('areaBigha').value = '';
+            
+            renderPlots();
+        }
+
+        function detectDisease() {
+            const file = document.getElementById('plantPhoto').files[0];
+            if(!file) {
+                alert("Pehle photo upload karein!");
+                return;
+            }
+            
+            // Mock AI Request
+            const btn = event.target;
+            btn.innerHTML = "Processing AI...";
+            btn.style.backgroundColor = "#555";
+            
+            setTimeout(() => {
+                const resultDiv = document.getElementById('aiResult');
+                resultDiv.style.display = "block";
+                resultDiv.innerHTML = `
+                    <strong>AI Analysis Complete:</strong><br>
+                    <span style="color: red;">Detected: Yellow Mosaic Virus (Possibility)</span><br>
+                    <hr style="border: 0.5px solid #ccc;">
+                    <strong>Recommended Action:</strong><br>
+                    Whitefly control is required. Spray Acetamiprid 20% SP.<br>
+                    <strong>Calculation:</strong> 1 Bigha = 5 Pump. Add 10g per pump.
+                `;
+                btn.innerHTML = "Check Disease with AI";
+                btn.style.backgroundColor = "#2e7d32";
+            }, 2000); // 2 second delay to simulate API call
+        }
+
+        // Initialize on load
+        window.onload = renderPlots;
+    </script>
+</body>
+</html>
