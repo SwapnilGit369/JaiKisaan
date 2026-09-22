@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,10 +12,21 @@
         input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         button { background-color: #2e7d32; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }
         button:hover { background-color: #1b5e20; }
+        .btn-small { padding: 5px 10px; font-size: 12px; width: auto; display: inline-block; margin-right: 5px; }
+        .btn-delete { background-color: #d32f2f; }
+        .btn-edit { background-color: #1976d2; }
         .alert { background-color: #fff3cd; color: #856404; padding: 10px; border-left: 4px solid #ffeeba; margin-top: 10px; font-size: 14px; }
-        .plot-item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .plot-item { border-bottom: 1px solid #eee; padding: 15px 0; }
         .mandi-weather { display: flex; gap: 10px; }
-        .half { flex: 1; background: #e3f2fd; padding: 10px; border-radius: 8px; text-align: center; font-size: 14px;}
+        .half { flex: 1; background: #e3f2fd; padding: 10px; border-radius: 8px; text-align: center; font-size: 14px; cursor: pointer; border: 1px solid #90caf9;}
+        
+        /* Modal (Popup) CSS */
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 85%; border-radius: 8px; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+        .mandi-list { margin-top: 15px; }
+        .mandi-list div { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;}
     </style>
 </head>
 <body>
@@ -32,9 +42,26 @@
             <strong>🌤 Weather</strong><br>
             Clear (No Rain)
         </div>
-        <div class="half" id="mandiWidget">
+        <div class="half" id="mandiWidget" onclick="openMandiModal()">
             <strong>🌾 Mandi Bhav</strong><br>
-            Soybean: ₹4500/Q
+            Click to View Prices
+        </div>
+    </div>
+
+    <!-- Mandi Modal (Popup) -->
+    <div id="mandiModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeMandiModal()">&times;</span>
+            <h3>📊 Mandi Bhav</h3>
+            <label style="font-size: 14px; font-weight: bold;">Mandi Chunein:</label>
+            <select id="mandiSelect" onchange="loadMandiPrices()">
+                <option value="Dhamnod">Dhamnod Mandi</option>
+                <option value="Indore">Indore Mandi</option>
+                <option value="Khargone">Khargone Mandi</option>
+            </select>
+            <div id="mandiPrices" class="mandi-list">
+                <!-- Prices will be loaded here via JS -->
+            </div>
         </div>
     </div>
 
@@ -48,8 +75,9 @@
     </div>
 
     <!-- Add New Crop/Plot -->
-    <div class="card">
-        <h3>🌱 Naya Khet Jodein</h3>
+    <div class="card" id="formCard">
+        <h3 id="formTitle">🌱 Naya Khet Jodein</h3>
+        <input type="hidden" id="editIndex" value="-1">
         <input type="text" id="plotName" placeholder="Khet ka naam (e.g., Baadi)">
         <select id="cropType">
             <option value="Soybean">Soybean</option>
@@ -59,7 +87,7 @@
         <label style="font-size: 14px; font-weight: bold; margin-top: 10px; display: block;">Bone ki Date (Sowing Date):</label>
         <input type="date" id="sowingDate">
         <input type="number" id="areaBigha" placeholder="Kitne Bigha me hai? (e.g., 2)">
-        <button onclick="addPlot()">Khet Save Karein</button>
+        <button id="saveBtn" onclick="savePlot()">Khet Save Karein</button>
     </div>
 
     <!-- Plots Dashboard -->
@@ -69,19 +97,32 @@
     </div>
 
     <script>
-        // Standard Crop Schedules (Dummy Data)
+        // Standard Crop Schedules
         const cropSchedules = {
             "Soybean": [
                 { day: 20, action: "Weedicide Spray (Kharpatwarnashak)", dose: "Dose: 1 Bigha = 5 Pump." },
                 { day: 45, action: "Fungicide & NPK 19:19:19", dose: "Dose: NPK 100g/Pump. (Total 500g in 5 Pump for 1 Bigha)." },
-                { day: 60, action: "Insecticide (Ampligo) for Caterpillars", dose: "Dose: 10ml/Pump. (Total 50ml in 5 Pump for 1 Bigha)." }
+                { day: 60, action: "Insecticide (Ampligo)", dose: "Dose: 10ml/Pump. (Total 50ml in 5 Pump for 1 Bigha)." },
+                { day: 90, action: "Pod Development - NPK 0:0:50", dose: "Dose: 100g/Pump. (1 Bigha = 5 Pump)." }
             ],
             "Cotton": [
-                { day: 45, action: "Square Formation - NPK 0:52:34", dose: "Dose: 100g/Pump. 1 Bigha = 5 Pump." }
+                { day: 45, action: "Square Formation - NPK 0:52:34", dose: "Dose: 100g/Pump. 1 Bigha = 5 Pump." },
+                { day: 60, action: "Insecticide for Whitefly", dose: "Dose: 1 Bigha = 5 Pump." },
+                { day: 90, action: "Boll Development - NPK 13:0:45", dose: "Dose: 100g/Pump. 1 Bigha = 5 Pump." }
+            ],
+            "Chickpea": [
+                { day: 30, action: "First Irrigation & Foliar Spray", dose: "Dose: NPK 19:19:19 100g/Pump. 1 Bigha = 5 Pump." },
+                { day: 60, action: "Flowering stage - Insecticide", dose: "Dose: Coragen 6ml/Pump. 1 Bigha = 5 Pump." }
             ]
         };
 
-        // Load plots from LocalStorage
+        // Dummy Mandi Data
+        const mandiData = {
+            "Dhamnod": [ { crop: "Soybean", price: "₹4500 - ₹4650/Q" }, { crop: "Cotton (Kapas)", price: "₹6800 - ₹7100/Q" }, { crop: "Chickpea (Chana)", price: "₹5200 - ₹5400/Q" } ],
+            "Indore": [ { crop: "Soybean", price: "₹4600 - ₹4750/Q" }, { crop: "Cotton (Kapas)", price: "₹6900 - ₹7200/Q" }, { crop: "Chickpea (Chana)", price: "₹5300 - ₹5500/Q" } ],
+            "Khargone": [ { crop: "Soybean", price: "₹4450 - ₹4600/Q" }, { crop: "Cotton (Kapas)", price: "₹6850 - ₹7150/Q" }, { crop: "Chickpea (Chana)", price: "₹5100 - ₹5350/Q" } ]
+        };
+
         let plots = JSON.parse(localStorage.getItem('farmerPlots')) || [];
 
         function renderPlots() {
@@ -94,23 +135,20 @@
             }
 
             plots.forEach((plot, index) => {
-                // Calculate Crop Age
                 const sowingDate = new Date(plot.date);
                 const today = new Date();
                 const diffTime = Math.abs(today - sowingDate);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-                // Find next schedule
-                let nextAction = "No immediate action";
+                let nextAction = "Fasal pakne ke kareeb hai ya schedule me agla task nahi hai.";
                 let alertHtml = "";
                 const schedule = cropSchedules[plot.crop] || [];
                 
                 for(let task of schedule) {
                     if(diffDays <= task.day) {
                         nextAction = `Upcoming Day ${task.day}: ${task.action} <br> <b>${task.dose}</b>`;
-                        // Trigger alert if task is within 2 days
                         if((task.day - diffDays) <= 2 && (task.day - diffDays) >= 0) {
-                            alertHtml = `<div class="alert">⚠️ ALERT: 2 din baad spray scheduled hai. Sukha hone par pehle sinchai karein!</div>`;
+                            alertHtml = `<div class="alert">⚠️ ALERT: ${task.day - diffDays} din baad spray scheduled hai!</div>`;
                         }
                         break;
                     }
@@ -119,33 +157,97 @@
                 container.innerHTML += `
                     <div class="plot-item">
                         <strong>Khet: ${plot.name}</strong> (${plot.area} Bigha)<br>
-                        <span style="font-size: 14px; color: #555;">Fasal: ${plot.crop} | Age: ${diffDays} Days</span><br>
+                        <span style="font-size: 14px; color: #555;">Fasal: ${plot.crop} | Age: <b>${diffDays} Days</b></span><br>
                         <span style="font-size: 13px; color: #2e7d32;">Plan: ${nextAction}</span>
                         ${alertHtml}
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-small btn-edit" onclick="editPlot(${index})">Edit</button>
+                            <button class="btn btn-small btn-delete" onclick="deletePlot(${index})">Delete</button>
+                        </div>
                     </div>
                 `;
             });
         }
 
-        function addPlot() {
+        function savePlot() {
             const name = document.getElementById('plotName').value;
             const crop = document.getElementById('cropType').value;
             const date = document.getElementById('sowingDate').value;
             const area = document.getElementById('areaBigha').value;
+            const editIndex = document.getElementById('editIndex').value;
 
             if(!name || !date || !area) {
                 alert("Kripya sabhi details bharein!");
                 return;
             }
 
-            plots.push({ name, crop, date, area });
+            const plotData = { name, crop, date, area };
+
+            if(editIndex === "-1") {
+                plots.push(plotData); // New Plot
+            } else {
+                plots[parseInt(editIndex)] = plotData; // Update existing
+                document.getElementById('editIndex').value = "-1";
+                document.getElementById('formTitle').innerText = "🌱 Naya Khet Jodein";
+                document.getElementById('saveBtn').innerText = "Khet Save Karein";
+            }
+
             localStorage.setItem('farmerPlots', JSON.stringify(plots));
             
-            // Clear inputs
             document.getElementById('plotName').value = '';
             document.getElementById('areaBigha').value = '';
             
             renderPlots();
+        }
+
+        function deletePlot(index) {
+            if(confirm("Kya aap sach me is khet ki detail hatana chahte hain?")) {
+                plots.splice(index, 1);
+                localStorage.setItem('farmerPlots', JSON.stringify(plots));
+                renderPlots();
+            }
+        }
+
+        function editPlot(index) {
+            const plot = plots[index];
+            document.getElementById('plotName').value = plot.name;
+            document.getElementById('cropType').value = plot.crop;
+            document.getElementById('sowingDate').value = plot.date;
+            document.getElementById('areaBigha').value = plot.area;
+            
+            document.getElementById('editIndex').value = index;
+            document.getElementById('formTitle').innerText = "✏️ Khet Edit Karein";
+            document.getElementById('saveBtn').innerText = "Update Karein";
+            
+            document.getElementById('formCard').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Mandi Modal Logic
+        function openMandiModal() {
+            document.getElementById('mandiModal').style.display = "block";
+            loadMandiPrices();
+        }
+
+        function closeMandiModal() {
+            document.getElementById('mandiModal').style.display = "none";
+        }
+
+        function loadMandiPrices() {
+            const mandi = document.getElementById('mandiSelect').value;
+            const prices = mandiData[mandi] || [];
+            let html = "";
+            prices.forEach(p => {
+                html += `<div><strong>${p.crop}</strong> <span>${p.price}</span></div>`;
+            });
+            document.getElementById('mandiPrices').innerHTML = html;
+        }
+
+        // Close modal if clicked outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('mandiModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
         }
 
         function detectDisease() {
@@ -155,7 +257,6 @@
                 return;
             }
             
-            // Mock AI Request
             const btn = event.target;
             btn.innerHTML = "Processing AI...";
             btn.style.backgroundColor = "#555";
@@ -165,18 +266,15 @@
                 resultDiv.style.display = "block";
                 resultDiv.innerHTML = `
                     <strong>AI Analysis Complete:</strong><br>
-                    <span style="color: red;">Detected: Yellow Mosaic Virus (Possibility)</span><br>
+                    <span style="color: red;">Detected: Viral Infection / Pest</span><br>
                     <hr style="border: 0.5px solid #ccc;">
-                    <strong>Recommended Action:</strong><br>
-                    Whitefly control is required. Spray Acetamiprid 20% SP.<br>
-                    <strong>Calculation:</strong> 1 Bigha = 5 Pump. Add 10g per pump.
+                    <strong>Calculation:</strong> 1 Bigha = 5 Pump. Add prescribed chemical per pump.
                 `;
                 btn.innerHTML = "Check Disease with AI";
                 btn.style.backgroundColor = "#2e7d32";
-            }, 2000); // 2 second delay to simulate API call
+            }, 2000); 
         }
 
-        // Initialize on load
         window.onload = renderPlots;
     </script>
 </body>
