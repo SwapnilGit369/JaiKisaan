@@ -14,11 +14,16 @@
         button:hover { background-color: #1b5e20; }
         .flex-box { display: flex; gap: 10px; flex-direction: column; }
         .info-box { background: #e3f2fd; padding: 10px; border-radius: 8px; font-size: 14px; }
-        .mandi-item { display: flex; justify-content: space-between; border-bottom: 1px solid #ccc; padding: 5px 0; }
         .result-box { display: none; margin-top: 15px; padding: 10px; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 5px; }
         .plot-item { border-bottom: 1px solid #eee; padding: 10px 0; }
         .alert-box { background-color: #fff3cd; color: #856404; padding: 8px; border-left: 4px solid #ffeeba; margin-top: 8px; font-size: 13px; }
         .notice-text { font-weight: bold; margin-bottom: 10px; display: block; font-size: 13px; }
+        
+        /* Mandi Table Styles */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th { background-color: #4CAF50; color: white; padding: 8px; text-align: left; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
@@ -28,7 +33,6 @@
         <p style="margin: 0; font-size: 14px;">Smart Farming, Free Knowledge</p>
     </header>
 
-    <!-- Weather & Mandi Section -->
     <div class="flex-box" style="margin-bottom: 15px;">
         <div class="info-box" id="weatherBox">
             <strong>🌤 Weather Info</strong><br>
@@ -40,8 +44,6 @@
             <select id="mandiSelect" onchange="fetchMandiData()" style="padding: 5px; font-size: 14px;">
                 <option value="Dhamnod" selected>Dhamnod Mandi</option>
                 <option value="Khargone">Khargone Mandi</option>
-                <option value="Indore">Indore Mandi</option>
-                <option value="Sendhwa">Sendhwa Mandi</option>
             </select>
             <span id="mandiNotice" class="notice-text">Notice Loading...</span>
             
@@ -54,7 +56,6 @@
         </div>
     </div>
 
-    <!-- AI Disease Detection -->
     <div class="card">
         <h3>🔍 Fasal Bimari AI</h3>
         <select id="aiCropSelect">
@@ -67,7 +68,6 @@
         <div id="aiResult" class="result-box"></div>
     </div>
 
-    <!-- Add Plot Section -->
     <div class="card">
         <h3>🌱 Naya Khet Jodein</h3>
         <input type="text" id="plotName" placeholder="Khet ka naam (Jaise: Baadi, Semalwala)">
@@ -82,17 +82,14 @@
         <button onclick="addPlot()">Khet Save Karein</button>
     </div>
 
-    <!-- Dashboard -->
     <div class="card">
         <h3>📊 Aapki Fasalein</h3>
         <div id="plotsContainer">Abhi koi khet nahi joda gaya...</div>
     </div>
 
     <script>
-        // YAHAN APNA PYTHONANYWHERE URL DAALEIN
         const BACKEND_URL = "https://swapnilpy369.pythonanywhere.com";
 
-        // Fetch Mandi Data
         async function fetchMandiData() {
             let selectedMandi = document.getElementById('mandiSelect').value;
             let mandiListDiv = document.getElementById('mandiList');
@@ -105,18 +102,30 @@
                 
                 document.getElementById('mandiDate').innerText = data.date;
                 document.getElementById('mandiNotice').innerText = data.notice;
-                
-                if(data.notice.includes("band")) {
-                    document.getElementById('mandiNotice').style.color = "red";
-                } else {
-                    document.getElementById('mandiNotice').style.color = "green";
-                }
+                document.getElementById('mandiNotice').style.color = data.notice.includes("band") ? "red" : "green";
 
-                let listHtml = "";
+                let tableHtml = `
+                    <table>
+                        <tr>
+                            <th>Fasal</th>
+                            <th>Nyunatam</th>
+                            <th>Adhiktam</th>
+                            <th>Model</th>
+                        </tr>
+                `;
+                
                 for (let crop in data.crops) {
-                    listHtml += `<div class="mandi-item"><span>${crop}</span> <strong>${data.crops[crop]}/Q</strong></div>`;
+                    tableHtml += `
+                        <tr>
+                            <td><strong>${crop}</strong></td>
+                            <td>₹${data.crops[crop].min}</td>
+                            <td>₹${data.crops[crop].max}</td>
+                            <td>₹${data.crops[crop].avg}</td>
+                        </tr>
+                    `;
                 }
-                mandiListDiv.innerHTML = listHtml;
+                tableHtml += `</table>`;
+                mandiListDiv.innerHTML = tableHtml;
 
             } catch (e) {
                 document.getElementById('mandiNotice').innerText = "";
@@ -124,7 +133,6 @@
             }
         }
 
-        // Fetch Weather
         async function fetchWeather() {
             try {
                 let res = await fetch(BACKEND_URL + "/api/weather");
@@ -141,7 +149,6 @@
             }
         }
 
-        // Season Validator
         function isValidSeason(crop, dateString) {
             let month = new Date(dateString).getMonth() + 1; 
             if (crop === "Cotton" && (month < 5 || month > 6)) return false;
@@ -150,7 +157,6 @@
             return true;
         }
 
-        // Add Plot Logic
         let plots = JSON.parse(localStorage.getItem('farmerPlots')) || [];
 
         function addPlot() {
@@ -176,7 +182,6 @@
             renderPlots();
         }
 
-        // Render Plots & Schedules
         const cropSchedules = {
             "Soybean": [
                 { day: 20, action: "Kharpatwarnashak Spray" },
@@ -235,7 +240,6 @@
             renderPlots();
         }
 
-        // AI Disease Detection
         async function detectDisease() {
             let fileInput = document.getElementById('plantPhoto').files[0];
             let cropSelect = document.getElementById('aiCropSelect').value;
