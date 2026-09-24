@@ -12,11 +12,13 @@
         input, select, button { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         button { background-color: #2e7d32; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; }
         button:hover { background-color: #1b5e20; }
-        .flex-box { display: flex; gap: 10px; }
-        .half { flex: 1; background: #e3f2fd; padding: 10px; border-radius: 8px; text-align: center; font-size: 14px; }
+        .flex-box { display: flex; gap: 10px; flex-direction: column; }
+        .info-box { background: #e3f2fd; padding: 10px; border-radius: 8px; font-size: 14px; }
+        .mandi-item { display: flex; justify-content: space-between; border-bottom: 1px solid #ccc; padding: 5px 0; }
         .result-box { display: none; margin-top: 15px; padding: 10px; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 5px; }
         .plot-item { border-bottom: 1px solid #eee; padding: 10px 0; }
         .alert-box { background-color: #fff3cd; color: #856404; padding: 8px; border-left: 4px solid #ffeeba; margin-top: 8px; font-size: 13px; }
+        .notice-text { font-weight: bold; margin-bottom: 10px; display: block; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -26,10 +28,30 @@
         <p style="margin: 0; font-size: 14px;">Smart Farming, Free Knowledge</p>
     </header>
 
-    <!-- Mandi & Weather -->
+    <!-- Weather & Mandi Section -->
     <div class="flex-box" style="margin-bottom: 15px;">
-        <div class="half" id="weatherBox">🌤 Weather<br><small>Loading...</small></div>
-        <div class="half" id="mandiBox">🌾 Mandi<br><small>Loading...</small></div>
+        <div class="info-box" id="weatherBox">
+            <strong>🌤 Weather Info</strong><br>
+            <small>Loading...</small>
+        </div>
+        
+        <div class="info-box">
+            <strong>🌾 Mandi Bhav (<span id="mandiDate">Loading...</span>)</strong>
+            <select id="mandiSelect" onchange="fetchMandiData()" style="padding: 5px; font-size: 14px;">
+                <option value="Dhamnod" selected>Dhamnod Mandi</option>
+                <option value="Khargone">Khargone Mandi</option>
+                <option value="Indore">Indore Mandi</option>
+                <option value="Sendhwa">Sendhwa Mandi</option>
+            </select>
+            <span id="mandiNotice" class="notice-text">Notice Loading...</span>
+            
+            <div id="mandiList">
+                <small>Bhav load ho raha hai...</small>
+            </div>
+            <div style="font-size: 11px; color: #d32f2f; margin-top: 8px;">
+                *Note: Bhav quality aur nami (moisture) ke hisab se upar-niche ho sakta hai.
+            </div>
+        </div>
     </div>
 
     <!-- AI Disease Detection -->
@@ -48,10 +70,11 @@
     <!-- Add Plot Section -->
     <div class="card">
         <h3>🌱 Naya Khet Jodein</h3>
-        <input type="text" id="plotName" placeholder="Khet ka naam (Jaise: Baadi)">
+        <input type="text" id="plotName" placeholder="Khet ka naam (Jaise: Baadi, Semalwala)">
         <select id="plotCrop">
             <option value="Soybean">Soybean (JS 2172)</option>
             <option value="Cotton">Cotton</option>
+            <option value="Chickpea">Chana</option>
         </select>
         <label style="font-size: 13px; font-weight: bold;">Bone ki Date (Sowing):</label>
         <input type="date" id="sowingDate">
@@ -66,46 +89,68 @@
     </div>
 
     <script>
-        // YAHAN APNA BACKEND URL DAALEIN
+        // YAHAN APNA PYTHONANYWHERE URL DAALEIN
         const BACKEND_URL = "https://swapnilpy369.pythonanywhere.com";
 
-        // 1. Fetch Weather & Mandi (With Error Handling)
-        async function loadDashboardData() {
+        // Fetch Mandi Data
+        async function fetchMandiData() {
+            let selectedMandi = document.getElementById('mandiSelect').value;
+            let mandiListDiv = document.getElementById('mandiList');
+            mandiListDiv.innerHTML = "<small>Loading...</small>";
+            
             try {
-                let weatherRes = await fetch(BACKEND_URL + "/api/weather");
-                if(!weatherRes.ok) throw new Error("Weather Error");
-                let weatherData = await weatherRes.json();
-                document.getElementById('weatherBox').innerHTML = `🌤 Weather<br><strong>${weatherData.weather}</strong>`;
-            } catch (e) {
-                document.getElementById('weatherBox').innerHTML = `🌤 Weather<br><span style="color:red; font-size:12px;">Data Not Available</span>`;
-            }
+                let res = await fetch(BACKEND_URL + "/api/mandi?location=" + selectedMandi);
+                if(!res.ok) throw new Error("Mandi API Failed");
+                let data = await res.json();
+                
+                document.getElementById('mandiDate').innerText = data.date;
+                document.getElementById('mandiNotice').innerText = data.notice;
+                
+                if(data.notice.includes("band")) {
+                    document.getElementById('mandiNotice').style.color = "red";
+                } else {
+                    document.getElementById('mandiNotice').style.color = "green";
+                }
 
-            try {
-                let mandiRes = await fetch(BACKEND_URL + "/api/mandi");
-                if(!mandiRes.ok) throw new Error("Mandi Error");
-                let mandiData = await mandiRes.json();
-                document.getElementById('mandiBox').innerHTML = `🌾 Mandi<br><strong>${mandiData.data}</strong>`;
+                let listHtml = "";
+                for (let crop in data.crops) {
+                    listHtml += `<div class="mandi-item"><span>${crop}</span> <strong>${data.crops[crop]}/Q</strong></div>`;
+                }
+                mandiListDiv.innerHTML = listHtml;
+
             } catch (e) {
-                document.getElementById('mandiBox').innerHTML = `🌾 Mandi<br><span style="color:red; font-size:12px;">Data Not Available</span>`;
+                document.getElementById('mandiNotice').innerText = "";
+                mandiListDiv.innerHTML = `<span style="color:red; font-size:13px;">Server se data nahi mil raha (Offline)</span>`;
             }
         }
 
-        // 2. Season Validator Logic
-        function isValidSeason(crop, dateString) {
-            let month = new Date(dateString).getMonth() + 1; // 1 to 12
-            
-            if (crop === "Cotton") {
-                // Cotton ka ideal time: May (5) aur June (6)
-                if (month < 5 || month > 6) return false;
-            } 
-            else if (crop === "Soybean") {
-                // Soybean ka ideal time: June (6) aur July (7)
-                if (month < 6 || month > 7) return false;
+        // Fetch Weather
+        async function fetchWeather() {
+            try {
+                let res = await fetch(BACKEND_URL + "/api/weather");
+                if(!res.ok) throw new Error("Weather Error");
+                let data = await res.json();
+                
+                if(data.success === false) {
+                    document.getElementById('weatherBox').innerHTML = `<strong>🌤 Weather Info</strong><br><span style="color:red; font-size:12px;">${data.weather}</span>`;
+                } else {
+                    document.getElementById('weatherBox').innerHTML = `<strong>🌤 Weather Info</strong><br><span>${data.weather}</span>`;
+                }
+            } catch (e) {
+                document.getElementById('weatherBox').innerHTML = `<strong>🌤 Weather Info</strong><br><span style="color:red; font-size:12px;">Data Not Available</span>`;
             }
+        }
+
+        // Season Validator
+        function isValidSeason(crop, dateString) {
+            let month = new Date(dateString).getMonth() + 1; 
+            if (crop === "Cotton" && (month < 5 || month > 6)) return false;
+            if (crop === "Soybean" && (month < 6 || month > 7)) return false;
+            if (crop === "Chickpea" && (month < 9 || month > 11)) return false;
             return true;
         }
 
-        // 3. Add Plot with strict Season Check
+        // Add Plot Logic
         let plots = JSON.parse(localStorage.getItem('farmerPlots')) || [];
 
         function addPlot() {
@@ -115,16 +160,12 @@
             const area = document.getElementById('plotArea').value;
 
             if(!name || !date || !area) { 
-                alert("Kripya sabhi details bharein!"); 
-                return; 
+                alert("Kripya sabhi details bharein!"); return; 
             }
 
-            // Season Check Alert
             if (!isValidSeason(crop, date)) {
                 let confirmBtn = confirm(`⚠️ ALERT: ${crop} bone ka ye sahi samay nahi hai. Kya aap fir bhi ise save karna chahte hain?`);
-                if (!confirmBtn) {
-                    return; // Agar cancel kiya to save nahi hoga
-                }
+                if (!confirmBtn) return; 
             }
 
             plots.push({ name, crop, date, area });
@@ -135,17 +176,21 @@
             renderPlots();
         }
 
-        // 4. Render Plots & Crop Schedule
+        // Render Plots & Schedules
         const cropSchedules = {
             "Soybean": [
                 { day: 20, action: "Kharpatwarnashak Spray" },
                 { day: 45, action: "NPK 19:19:19 + Fungicide" },
-                { day: 60, action: "Ampligo / Coragen for caterpillars" }
+                { day: 60, action: "Ampligo / Coragen (caterpillars)" }
             ],
             "Cotton": [
                 { day: 45, action: "NPK 0:52:34 for Square Formation" },
                 { day: 60, action: "Whitefly & Thrips control" },
-                { day: 90, action: "Boll development stage - nutrient care" }
+                { day: 90, action: "Boll development care" }
+            ],
+            "Chickpea": [
+                { day: 30, action: "First irrigation & NPK" },
+                { day: 50, action: "Foliar spray for flowering" }
             ]
         };
 
@@ -160,8 +205,7 @@
                 let nextAction = "No immediate action";
                 let alertHtml = "";
                 
-                let baseCrop = plot.crop.split(' ')[0];
-                const schedule = cropSchedules[baseCrop] || [];
+                const schedule = cropSchedules[plot.crop] || [];
                 
                 for(let task of schedule) {
                     if(diffDays <= task.day) {
@@ -211,14 +255,15 @@
                 
                 let resultBox = document.getElementById('aiResult');
                 resultBox.style.display = "block";
-                if(data.success === false || data.error) {
-                     resultBox.innerHTML = `<span style="color: red;">Error: ${data.error || 'AI Failed'}</span>`;
-                } else {
+                
+                if(data.success) {
                     resultBox.innerHTML = `
-                        <strong>AI Advice:</strong><br>${data.treatment ? data.treatment.replace(/\n/g, '<br>') : 'Analyzing...'}<br>
+                        <strong>AI Advice:</strong><br>${data.treatment.replace(/\n/g, '<br>')}<br>
                         <hr style="border: 0.5px solid #ccc;">
-                        <span style="color: red; font-size: 12px;">⚠️ ${data.alert || ''}</span>
+                        <span style="color: red; font-size: 12px;">⚠️ ${data.alert}</span>
                     `;
+                } else {
+                    resultBox.innerHTML = `<span style="color: red;">Error: ${data.error}</span>`;
                 }
             } catch (error) {
                 alert("Server se connect nahi ho paya. Backend URL check karein.");
@@ -227,7 +272,11 @@
             }
         }
 
-        window.onload = () => { loadDashboardData(); renderPlots(); };
+        window.onload = () => { 
+            fetchWeather(); 
+            fetchMandiData(); 
+            renderPlots(); 
+        };
     </script>
 </body>
 </html>
