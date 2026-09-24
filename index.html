@@ -69,19 +69,126 @@
         // YAHAN APNA BACKEND URL DAALEIN
         const BACKEND_URL = "https://swapnilpy369.pythonanywhere.com";
 
-        // Fetch Weather & Mandi on Load
+        // 1. Fetch Weather & Mandi (With Error Handling)
         async function loadDashboardData() {
             try {
                 let weatherRes = await fetch(BACKEND_URL + "/api/weather");
+                if(!weatherRes.ok) throw new Error("Weather Error");
                 let weatherData = await weatherRes.json();
                 document.getElementById('weatherBox').innerHTML = `🌤 Weather<br><strong>${weatherData.weather}</strong>`;
+            } catch (e) {
+                document.getElementById('weatherBox').innerHTML = `🌤 Weather<br><span style="color:red; font-size:12px;">Data Not Available</span>`;
+            }
 
+            try {
                 let mandiRes = await fetch(BACKEND_URL + "/api/mandi");
+                if(!mandiRes.ok) throw new Error("Mandi Error");
                 let mandiData = await mandiRes.json();
                 document.getElementById('mandiBox').innerHTML = `🌾 Mandi<br><strong>${mandiData.data}</strong>`;
             } catch (e) {
-                console.log("Backend offline ya keys missing.");
+                document.getElementById('mandiBox').innerHTML = `🌾 Mandi<br><span style="color:red; font-size:12px;">Data Not Available</span>`;
             }
+        }
+
+        // 2. Season Validator Logic
+        function isValidSeason(crop, dateString) {
+            let month = new Date(dateString).getMonth() + 1; // 1 to 12
+            
+            if (crop === "Cotton") {
+                // Cotton ka ideal time: May (5) aur June (6)
+                if (month < 5 || month > 6) return false;
+            } 
+            else if (crop === "Soybean") {
+                // Soybean ka ideal time: June (6) aur July (7)
+                if (month < 6 || month > 7) return false;
+            }
+            return true;
+        }
+
+        // 3. Add Plot with strict Season Check
+        let plots = JSON.parse(localStorage.getItem('farmerPlots')) || [];
+
+        function addPlot() {
+            const name = document.getElementById('plotName').value;
+            const crop = document.getElementById('plotCrop').value;
+            const date = document.getElementById('sowingDate').value;
+            const area = document.getElementById('plotArea').value;
+
+            if(!name || !date || !area) { 
+                alert("Kripya sabhi details bharein!"); 
+                return; 
+            }
+
+            // Season Check Alert
+            if (!isValidSeason(crop, date)) {
+                let confirmBtn = confirm(`⚠️ ALERT: ${crop} bone ka ye sahi samay nahi hai. Kya aap fir bhi ise save karna chahte hain?`);
+                if (!confirmBtn) {
+                    return; // Agar cancel kiya to save nahi hoga
+                }
+            }
+
+            plots.push({ name, crop, date, area });
+            localStorage.setItem('farmerPlots', JSON.stringify(plots));
+            
+            document.getElementById('plotName').value = '';
+            document.getElementById('plotArea').value = '';
+            renderPlots();
+        }
+
+        // 4. Render Plots & Crop Schedule
+        const cropSchedules = {
+            "Soybean": [
+                { day: 20, action: "Kharpatwarnashak Spray" },
+                { day: 45, action: "NPK 19:19:19 + Fungicide" },
+                { day: 60, action: "Ampligo / Coragen for caterpillars" }
+            ],
+            "Cotton": [
+                { day: 45, action: "NPK 0:52:34 for Square Formation" },
+                { day: 60, action: "Whitefly & Thrips control" },
+                { day: 90, action: "Boll development stage - nutrient care" }
+            ]
+        };
+
+        function renderPlots() {
+            const container = document.getElementById('plotsContainer');
+            container.innerHTML = '';
+            
+            plots.forEach((plot, index) => {
+                const sowingDate = new Date(plot.date);
+                const diffDays = Math.ceil(Math.abs(new Date() - sowingDate) / (1000 * 60 * 60 * 24)); 
+                
+                let nextAction = "No immediate action";
+                let alertHtml = "";
+                
+                let baseCrop = plot.crop.split(' ')[0];
+                const schedule = cropSchedules[baseCrop] || [];
+                
+                for(let task of schedule) {
+                    if(diffDays <= task.day) {
+                        nextAction = `Day ${task.day}: ${task.action}`;
+                        if((task.day - diffDays) <= 3 && (task.day - diffDays) >= 0) {
+                            alertHtml = `<div class="alert-box">⚠️ Alert: Agle 3 din me spray scheduled hai. (1 Bigha = 5 Pump)</div>`;
+                        }
+                        break;
+                    }
+                }
+
+                container.innerHTML += `
+                    <div class="plot-item">
+                        <strong>${plot.name}</strong> (${plot.area} Bigha, ${plot.crop})<br>
+                        <span style="font-size: 13px; color: #555;">Crop Age: ${diffDays} Din</span><br>
+                        <span style="font-size: 13px; color: #2e7d32;">Plan: ${nextAction}</span>
+                        ${alertHtml}
+                        <button onclick="deletePlot(${index})" style="background: #d32f2f; padding: 5px; margin-top: 5px; font-size: 12px; width: auto;">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        function deletePlot(index) {
+            plots.splice(index, 1);
+            localStorage.setItem('farmerPlots', JSON.stringify(plots));
+            renderPlots();
         }
 
         // AI Disease Detection
@@ -104,86 +211,20 @@
                 
                 let resultBox = document.getElementById('aiResult');
                 resultBox.style.display = "block";
-                resultBox.innerHTML = `
-                    <strong>AI Advice:</strong><br>${data.treatment.replace(/\n/g, '<br>')}<br>
-                    <hr style="border: 0.5px solid #ccc;">
-                    <span style="color: red; font-size: 12px;">⚠️ ${data.alert}</span>
-                `;
+                if(data.success === false || data.error) {
+                     resultBox.innerHTML = `<span style="color: red;">Error: ${data.error || 'AI Failed'}</span>`;
+                } else {
+                    resultBox.innerHTML = `
+                        <strong>AI Advice:</strong><br>${data.treatment ? data.treatment.replace(/\n/g, '<br>') : 'Analyzing...'}<br>
+                        <hr style="border: 0.5px solid #ccc;">
+                        <span style="color: red; font-size: 12px;">⚠️ ${data.alert || ''}</span>
+                    `;
+                }
             } catch (error) {
-                alert("Server se connect nahi ho paya.");
+                alert("Server se connect nahi ho paya. Backend URL check karein.");
             } finally {
                 btn.innerHTML = "Bimari Check Karein"; btn.style.backgroundColor = "#2e7d32";
             }
-        }
-
-        // Crop Schedule Engine
-        const cropSchedules = {
-            "Soybean": [
-                { day: 20, action: "Kharpatwarnashak Spray (Weedicide)" },
-                { day: 45, action: "NPK 19:19:19 + Fungicide" },
-                { day: 60, action: "Ampligo / Coragen for caterpillars" }
-            ],
-            "Cotton": [
-                { day: 45, action: "NPK 0:52:34 for Square Formation" },
-                { day: 60, action: "Whitefly & Thrips control" }
-            ]
-        };
-
-        let plots = JSON.parse(localStorage.getItem('farmerPlots')) || [];
-
-        function renderPlots() {
-            const container = document.getElementById('plotsContainer');
-            container.innerHTML = '';
-            
-            plots.forEach((plot, index) => {
-                const sowingDate = new Date(plot.date);
-                const diffDays = Math.ceil(Math.abs(new Date() - sowingDate) / (1000 * 60 * 60 * 24)); 
-                
-                let nextAction = "No immediate action";
-                let alertHtml = "";
-                const schedule = cropSchedules[plot.crop.split(' ')[0]] || [];
-                
-                for(let task of schedule) {
-                    if(diffDays <= task.day) {
-                        nextAction = `Day ${task.day}: ${task.action}`;
-                        if((task.day - diffDays) <= 3 && (task.day - diffDays) >= 0) {
-                            alertHtml = `<div class="alert-box">⚠️ Alert: Agle 3 din me spray scheduled hai. Nami check karein. (1 Bigha = 5 Pump)</div>`;
-                        }
-                        break;
-                    }
-                }
-
-                container.innerHTML += `
-                    <div class="plot-item">
-                        <strong>${plot.name}</strong> (${plot.area} Bigha, ${plot.crop})<br>
-                        <span style="font-size: 13px; color: #555;">Crop Age: ${diffDays} Days</span><br>
-                        <span style="font-size: 13px; color: #2e7d32;">Plan: ${nextAction}</span>
-                        ${alertHtml}
-                        <button onclick="deletePlot(${index})" style="background: #d32f2f; padding: 5px; margin-top: 5px; font-size: 12px; width: auto;">Delete</button>
-                    </div>
-                `;
-            });
-        }
-
-        function addPlot() {
-            const name = document.getElementById('plotName').value;
-            const crop = document.getElementById('plotCrop').value;
-            const date = document.getElementById('sowingDate').value;
-            const area = document.getElementById('plotArea').value;
-
-            if(!name || !date || !area) { alert("Details bharein!"); return; }
-
-            plots.push({ name, crop, date, area });
-            localStorage.setItem('farmerPlots', JSON.stringify(plots));
-            document.getElementById('plotName').value = '';
-            document.getElementById('plotArea').value = '';
-            renderPlots();
-        }
-
-        function deletePlot(index) {
-            plots.splice(index, 1);
-            localStorage.setItem('farmerPlots', JSON.stringify(plots));
-            renderPlots();
         }
 
         window.onload = () => { loadDashboardData(); renderPlots(); };
