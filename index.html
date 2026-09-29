@@ -3,284 +3,1392 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kisan AI Expert</title>
-    <meta name="theme-color" content="#2e7d32">
+
+    <title>JaiKisaan AI</title>
+
+    <link rel="manifest" href="/manifest.json">
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; }
-        header { background-color: #2e7d32; color: white; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; }
-        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        input, select, button { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { background-color: #2e7d32; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; }
-        button:hover { background-color: #1b5e20; }
-        .flex-box { display: flex; gap: 10px; flex-direction: column; }
-        .info-box { background: #e3f2fd; padding: 10px; border-radius: 8px; font-size: 14px; }
-        .result-box { display: none; margin-top: 15px; padding: 10px; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 5px; }
-        .plot-item { border-bottom: 1px solid #eee; padding: 10px 0; }
-        .alert-box { background-color: #fff3cd; color: #856404; padding: 8px; border-left: 4px solid #ffeeba; margin-top: 8px; font-size: 13px; }
-        .notice-text { font-weight: bold; margin-bottom: 10px; display: block; font-size: 13px; }
-        
-        /* Mandi Table Styles */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        th { background-color: #4CAF50; color: white; padding: 8px; text-align: left; }
-        td { padding: 8px; border-bottom: 1px solid #ddd; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7f3;
+            color: #222;
+        }
+
+        header {
+            background: #166534;
+            color: white;
+            padding: 18px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            font-size: 13px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: auto;
+            padding: 12px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 19px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        input,
+        select,
+        textarea,
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border-radius: 9px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        button {
+            border: none;
+            background: #15803d;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            background: #475569;
+        }
+
+        button.warning {
+            background: #b45309;
+        }
+
+        button.red {
+            background: #b91c1c;
+        }
+
+        .info {
+            background: #ecfdf5;
+            padding: 10px;
+            border-left: 4px solid #16a34a;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+
+        .warning-box {
+            background: #fff7ed;
+            padding: 10px;
+            border-left: 4px solid #ea580c;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+
+        .weather {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .small {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .field-card {
+            border: 1px solid #ddd;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .active-crop {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .plan-box {
+            white-space: pre-wrap;
+            line-height: 1.55;
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .chat-box {
+            height: 330px;
+            overflow-y: auto;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 10px;
+            margin: 8px 0;
+            white-space: pre-wrap;
+            line-height: 1.45;
+        }
+
+        .user-message {
+            background: #dcfce7;
+            margin-left: 25px;
+        }
+
+        .ai-message {
+            background: #e2e8f0;
+            margin-right: 25px;
+        }
+
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+
+        .nav {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-top: 1px solid #ddd;
+            padding: 8px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .nav button {
+            margin: 0;
+            font-size: 12px;
+            padding: 9px 4px;
+        }
     </style>
 </head>
+
 <body>
 
-    <header>
-        <h2>Kisan AI Expert</h2>
-        <p style="margin: 0; font-size: 14px;">Smart Farming, Free Knowledge</p>
-    </header>
+<header>
+    <h1>🌾 JaiKisaan AI</h1>
+    <p>AI aapke khet ka digital sahayak</p>
+</header>
 
-    <div class="flex-box" style="margin-bottom: 15px;">
-        <div class="info-box" id="weatherBox">
-            <strong>🌤 Weather Info</strong><br>
-            <small>Loading...</small>
-        </div>
-        
-        <div class="info-box">
-            <strong>🌾 Mandi Bhav (<span id="mandiDate">Loading...</span>)</strong>
-            <select id="mandiSelect" onchange="fetchMandiData()" style="padding: 5px; font-size: 14px;">
-                <option value="Dhamnod" selected>Dhamnod Mandi</option>
-                <option value="Khargone">Khargone Mandi</option>
-            </select>
-            <span id="mandiNotice" class="notice-text">Notice Loading...</span>
-            
-            <div id="mandiList">
-                <small>Bhav load ho raha hai...</small>
+
+<div class="container">
+
+    <!-- LOGIN / REGISTRATION -->
+
+    <div id="loginSection" class="card">
+        <h2>📱 Kisan Registration</h2>
+
+        <input
+            id="farmerName"
+            type="text"
+            placeholder="Aapka naam"
+        >
+
+        <input
+            id="farmerMobile"
+            type="tel"
+            maxlength="10"
+            placeholder="10 digit mobile number"
+        >
+
+        <button onclick="registerFarmer()">
+            Start JaiKisaan
+        </button>
+
+        <p class="small">
+            Mobile number se aapka khet aur fasal data save rahega.
+        </p>
+    </div>
+
+
+    <!-- MAIN APP -->
+
+    <div id="appSection" class="hidden">
+
+        <!-- FARMER -->
+
+        <div class="card">
+            <h2>👨‍🌾 Namaste <span id="farmerDisplayName"></span></h2>
+
+            <div class="small">
+                Mobile:
+                <span id="farmerDisplayMobile"></span>
             </div>
-            <div style="font-size: 11px; color: #d32f2f; margin-top: 8px;">
-                *Note: Bhav quality aur nami (moisture) ke hisab se upar-niche ho sakta hai.
+        </div>
+
+
+        <!-- WEATHER -->
+
+        <div class="card">
+            <h2>🌦️ Mausam</h2>
+
+            <div id="weatherText" class="weather">
+                Mausam load ho raha hai...
+            </div>
+
+            <div id="weatherRisk" class="warning-box hidden"></div>
+        </div>
+
+
+        <!-- ADD FIELD -->
+
+        <div class="card">
+            <h2>🌱 Naya Khet Add Karein</h2>
+
+            <input
+                id="fieldName"
+                type="text"
+                placeholder="Khet ka naam - jaise Baadi"
+            >
+
+            <input
+                id="fieldArea"
+                type="number"
+                step="0.1"
+                placeholder="Area bigha me"
+            >
+
+            <button onclick="addField()">
+                Khet Save Karein
+            </button>
+        </div>
+
+
+        <!-- FIELDS -->
+
+        <div class="card">
+            <h2>🚜 Mere Khet</h2>
+
+            <div id="fieldsList">
+                Loading...
             </div>
         </div>
+
+
+        <!-- SELECTED FIELD -->
+
+        <div id="cropSection" class="card hidden">
+
+            <h2>
+                🌾 <span id="selectedFieldName"></span>
+            </h2>
+
+            <div id="activeCropBox"></div>
+
+            <div id="newCropForm">
+
+                <h3>Nayi Fasal</h3>
+
+                <select id="cropName">
+                    <option value="">Fasal select karein</option>
+                    <option value="Soybean">Soybean</option>
+                    <option value="Cotton">Cotton</option>
+                    <option value="Wheat">Wheat</option>
+                    <option value="Chana">Chana</option>
+                    <option value="Maize">Makka</option>
+                    <option value="Onion">Pyaj</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <input
+                    id="cropVariety"
+                    type="text"
+                    placeholder="Variety - jaise JS 9560"
+                >
+
+                <label class="small">
+                    Bone ki date
+                </label>
+
+                <input
+                    id="sowingDate"
+                    type="date"
+                >
+
+                <button onclick="startCrop()">
+                    Fasal Start Karein
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- SMART PLAN -->
+
+        <div id="planSection" class="card hidden">
+
+            <h2>🤖 Aaj Mere Khet Me Kya Karna Hai?</h2>
+
+            <div id="cropSummary" class="info"></div>
+
+            <button onclick="generatePlan()">
+                Smart AI Plan Banayein
+            </button>
+
+            <div
+                id="planLoading"
+                class="loading hidden"
+            >
+                AI aapki fasal, age aur weather dekh raha hai...
+            </div>
+
+            <div
+                id="planResult"
+                class="plan-box hidden"
+            ></div>
+
+        </div>
+
+
+        <!-- AI CHAT -->
+
+        <div id="chatSection" class="card hidden">
+
+            <h2>💬 JaiKisaan AI se Puchhein</h2>
+
+            <div class="small">
+                Fasal, spray, rog, nutrition ya weather ke baare me sawal puchhein.
+            </div>
+
+            <div id="chatBox" class="chat-box">
+
+                <div class="message ai-message">
+                    Namaste Kisan bhai 👋
+                    Apni fasal ki problem simple language me bataiye.
+                </div>
+
+            </div>
+
+            <textarea
+                id="chatInput"
+                placeholder="Jaise: soybean ki patti pili ho rahi hai, kya karu?"
+            ></textarea>
+
+            <button onclick="sendChat()">
+                AI se Puchhein
+            </button>
+
+        </div>
+
+
+        <!-- MANDI -->
+
+        <div class="card">
+
+            <h2>📈 Dhamnod Mandi Bhav</h2>
+
+            <div id="mandiResult">
+                Live mandi API abhi connect nahi hai.
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="card">
-        <h3>🔍 Fasal Bimari AI</h3>
-        <select id="aiCropSelect">
-            <option value="Soybean">Soybean</option>
-            <option value="Cotton">Cotton</option>
-            <option value="Chickpea">Chana (Chickpea)</option>
-        </select>
-        <input type="file" id="plantPhoto" accept="image/*">
-        <button id="aiButton" onclick="detectDisease()">Bimari Check Karein</button>
-        <div id="aiResult" class="result-box"></div>
-    </div>
+</div>
 
-    <div class="card">
-        <h3>🌱 Naya Khet Jodein</h3>
-        <input type="text" id="plotName" placeholder="Khet ka naam (Jaise: Baadi, Semalwala)">
-        <select id="plotCrop">
-            <option value="Soybean">Soybean (JS 2172)</option>
-            <option value="Cotton">Cotton</option>
-            <option value="Chickpea">Chana</option>
-        </select>
-        <label style="font-size: 13px; font-weight: bold;">Bone ki Date (Sowing):</label>
-        <input type="date" id="sowingDate">
-        <input type="number" id="plotArea" placeholder="Kitne Bigha? (1 Acre = 2.5 Bigha)">
-        <button onclick="addPlot()">Khet Save Karein</button>
-    </div>
 
-    <div class="card">
-        <h3>📊 Aapki Fasalein</h3>
-        <div id="plotsContainer">Abhi koi khet nahi joda gaya...</div>
-    </div>
+<script>
 
-    <script>
-        const BACKEND_URL = "https://swapnilpy369.pythonanywhere.com";
+let farmer = null;
+let selectedField = null;
+let activeCrop = null;
+let currentWeather = "";
 
-        async function fetchMandiData() {
-            let selectedMandi = document.getElementById('mandiSelect').value;
-            let mandiListDiv = document.getElementById('mandiList');
-            mandiListDiv.innerHTML = "<small>Loading...</small>";
-            
-            try {
-                let res = await fetch(BACKEND_URL + "/api/mandi?location=" + selectedMandi);
-                if(!res.ok) throw new Error("Mandi API Failed");
-                let data = await res.json();
-                
-                document.getElementById('mandiDate').innerText = data.date;
-                document.getElementById('mandiNotice').innerText = data.notice;
-                document.getElementById('mandiNotice').style.color = data.notice.includes("band") ? "red" : "green";
 
-                let tableHtml = `
-                    <table>
-                        <tr>
-                            <th>Fasal</th>
-                            <th>Nyunatam</th>
-                            <th>Adhiktam</th>
-                            <th>Model</th>
-                        </tr>
-                `;
-                
-                for (let crop in data.crops) {
-                    tableHtml += `
-                        <tr>
-                            <td><strong>${crop}</strong></td>
-                            <td>₹${data.crops[crop].min}</td>
-                            <td>₹${data.crops[crop].max}</td>
-                            <td>₹${data.crops[crop].avg}</td>
-                        </tr>
-                    `;
-                }
-                tableHtml += `</table>`;
-                mandiListDiv.innerHTML = tableHtml;
+/* =========================================
+   INIT
+========================================= */
 
-            } catch (e) {
-                document.getElementById('mandiNotice').innerText = "";
-                mandiListDiv.innerHTML = `<span style="color:red; font-size:13px;">Server se data nahi mil raha (Offline)</span>`;
+window.addEventListener("load", function () {
+
+    const savedFarmer = localStorage.getItem("jaiKisaanFarmer");
+
+    if (savedFarmer) {
+
+        farmer = JSON.parse(savedFarmer);
+
+        showApp();
+
+    }
+
+    loadWeather();
+
+});
+
+
+/* =========================================
+   REGISTER FARMER
+========================================= */
+
+async function registerFarmer() {
+
+    const name = document
+        .getElementById("farmerName")
+        .value
+        .trim();
+
+    const mobile = document
+        .getElementById("farmerMobile")
+        .value
+        .trim();
+
+    if (!name || mobile.length !== 10) {
+
+        alert("Naam aur valid 10 digit mobile number dalein.");
+
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            "/api/register",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    name: name,
+                    mobile: mobile
+                })
             }
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+
+            alert(data.error || "Registration failed.");
+
+            return;
         }
 
-        async function fetchWeather() {
-            try {
-                let res = await fetch(BACKEND_URL + "/api/weather");
-                if(!res.ok) throw new Error("Weather Error");
-                let data = await res.json();
-                
-                if(data.success === false) {
-                    document.getElementById('weatherBox').innerHTML = `<strong>🌤 Weather Info</strong><br><span style="color:red; font-size:12px;">${data.weather}</span>`;
-                } else {
-                    document.getElementById('weatherBox').innerHTML = `<strong>🌤 Weather Info</strong><br><span>${data.weather}</span>`;
-                }
-            } catch (e) {
-                document.getElementById('weatherBox').innerHTML = `<strong>🌤 Weather Info</strong><br><span style="color:red; font-size:12px;">Data Not Available</span>`;
+        farmer = data.farmer;
+
+        localStorage.setItem(
+            "jaiKisaanFarmer",
+            JSON.stringify(farmer)
+        );
+
+        showApp();
+
+    } catch (error) {
+
+        alert("Registration server error.");
+
+    }
+}
+
+
+/* =========================================
+   SHOW APP
+========================================= */
+
+function showApp() {
+
+    document
+        .getElementById("loginSection")
+        .classList
+        .add("hidden");
+
+    document
+        .getElementById("appSection")
+        .classList
+        .remove("hidden");
+
+    document.getElementById(
+        "farmerDisplayName"
+    ).innerText = farmer.name;
+
+    document.getElementById(
+        "farmerDisplayMobile"
+    ).innerText = farmer.mobile;
+
+    loadFields();
+}
+
+
+/* =========================================
+   WEATHER
+========================================= */
+
+async function loadWeather() {
+
+    try {
+
+        const response = await fetch(
+            "/api/weather"
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+
+            document.getElementById(
+                "weatherText"
+            ).innerText = "Weather unavailable";
+
+            return;
+        }
+
+        currentWeather = data.weather;
+
+        document.getElementById(
+            "weatherText"
+        ).innerText = data.weather;
+
+        const riskBox = document.getElementById(
+            "weatherRisk"
+        );
+
+        let risk = "";
+
+        if (
+            data.rain !== null &&
+            Number(data.rain) > 0
+        ) {
+
+            risk =
+                "⚠️ Barish record ho rahi hai. Spray se pehle weather check karein.";
+
+        }
+
+        else if (
+            data.wind !== null &&
+            Number(data.wind) > 20
+        ) {
+
+            risk =
+                "⚠️ Hawa tez hai. Spray drift ka risk ho sakta hai.";
+
+        }
+
+        if (risk) {
+
+            riskBox.innerText = risk;
+            riskBox.classList.remove("hidden");
+
+        }
+
+        else {
+
+            riskBox.classList.add("hidden");
+
+        }
+
+    }
+
+    catch (error) {
+
+        document.getElementById(
+            "weatherText"
+        ).innerText = "Weather unavailable";
+
+    }
+
+}
+
+
+/* =========================================
+   ADD FIELD
+========================================= */
+
+async function addField() {
+
+    const fieldName = document
+        .getElementById("fieldName")
+        .value
+        .trim();
+
+    const area = document
+        .getElementById("fieldArea")
+        .value;
+
+    if (!fieldName || !area) {
+
+        alert("Khet ka naam aur area dalein.");
+
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            "/api/fields",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    farmer_id: farmer.id,
+
+                    field_name: fieldName,
+
+                    area: Number(area)
+
+                })
             }
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+
+            alert(data.error);
+
+            return;
         }
 
-        function isValidSeason(crop, dateString) {
-            let month = new Date(dateString).getMonth() + 1; 
-            if (crop === "Cotton" && (month < 5 || month > 6)) return false;
-            if (crop === "Soybean" && (month < 6 || month > 7)) return false;
-            if (crop === "Chickpea" && (month < 9 || month > 11)) return false;
-            return true;
+        document.getElementById(
+            "fieldName"
+        ).value = "";
+
+        document.getElementById(
+            "fieldArea"
+        ).value = "";
+
+        loadFields();
+
+    }
+
+    catch (error) {
+
+        alert("Khet save nahi hua.");
+
+    }
+
+}
+
+
+/* =========================================
+   LOAD FIELDS
+========================================= */
+
+async function loadFields() {
+
+    const box = document.getElementById(
+        "fieldsList"
+    );
+
+    box.innerHTML = "Loading...";
+
+    try {
+
+        const response = await fetch(
+            "/api/fields/" + farmer.id
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+
+            box.innerHTML = data.error;
+
+            return;
         }
 
-        let plots = JSON.parse(localStorage.getItem('farmerPlots')) || [];
+        if (!data.fields.length) {
 
-        function addPlot() {
-            const name = document.getElementById('plotName').value;
-            const crop = document.getElementById('plotCrop').value;
-            const date = document.getElementById('sowingDate').value;
-            const area = document.getElementById('plotArea').value;
+            box.innerHTML =
+                "<div class='small'>Abhi koi khet add nahi hai.</div>";
 
-            if(!name || !date || !area) { 
-                alert("Kripya sabhi details bharein!"); return; 
+            return;
+        }
+
+        box.innerHTML = "";
+
+        data.fields.forEach(function(field) {
+
+            const div = document.createElement("div");
+
+            div.className = "field-card";
+
+            div.innerHTML = `
+                <b>🌱 ${field.name}</b>
+                <div class="small">
+                    ${field.area_bigha} bigha
+                    • ${field.soil_type || "Heavy Black Soil"}
+                </div>
+
+                <button
+                    onclick='selectField(${JSON.stringify(field)})'
+                >
+                    Khet Kholein
+                </button>
+            `;
+
+            box.appendChild(div);
+
+        });
+
+    }
+
+    catch (error) {
+
+        box.innerHTML =
+            "Fields load nahi hue.";
+
+    }
+
+}
+
+
+/* =========================================
+   SELECT FIELD
+========================================= */
+
+async function selectField(field) {
+
+    selectedField = field;
+    activeCrop = null;
+
+    document.getElementById(
+        "selectedFieldName"
+    ).innerText = field.name;
+
+    document.getElementById(
+        "cropSection"
+    ).classList.remove("hidden");
+
+    document.getElementById(
+        "planSection"
+    ).classList.add("hidden");
+
+    document.getElementById(
+        "chatSection"
+    ).classList.add("hidden");
+
+    await loadCrops();
+
+}
+
+
+/* =========================================
+   LOAD CROPS
+========================================= */
+
+async function loadCrops() {
+
+    const cropBox = document.getElementById(
+        "activeCropBox"
+    );
+
+    cropBox.innerHTML = "Crop load ho rahi hai...";
+
+    try {
+
+        const response = await fetch(
+            "/api/crops/" + selectedField.id
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+
+            cropBox.innerHTML = data.error;
+
+            return;
+        }
+
+        activeCrop = data.crops.find(
+            crop => crop.status === "active"
+        );
+
+        if (!activeCrop) {
+
+            cropBox.innerHTML =
+                "<div class='info'>Is khet me abhi active fasal nahi hai.</div>";
+
+            document.getElementById(
+                "newCropForm"
+            ).classList.remove("hidden");
+
+            return;
+        }
+
+        document.getElementById(
+            "newCropForm"
+        ).classList.add("hidden");
+
+        cropBox.innerHTML = `
+            <div class="active-crop">
+
+                <b>
+                    🌾 ${activeCrop.crop}
+                </b>
+
+                <div>
+                    Variety:
+                    ${activeCrop.variety || "Not entered"}
+                </div>
+
+                <div>
+                    Age:
+                    <b>${activeCrop.age_days} days</b>
+                </div>
+
+                <div>
+                    Sowing:
+                    ${activeCrop.sowing_date}
+                </div>
+
+                <button
+                    class="red"
+                    onclick="completeCrop()"
+                >
+                    Crop Complete / Harvested
+                </button>
+
+            </div>
+        `;
+
+        showCropFeatures();
+
+    }
+
+    catch (error) {
+
+        cropBox.innerHTML =
+            "Crop load nahi hui.";
+
+    }
+
+}
+
+
+/* =========================================
+   START CROP
+========================================= */
+
+async function startCrop() {
+
+    const crop = document
+        .getElementById("cropName")
+        .value;
+
+    const variety = document
+        .getElementById("cropVariety")
+        .value
+        .trim();
+
+    const sowingDate = document
+        .getElementById("sowingDate")
+        .value;
+
+    if (!crop || !sowingDate) {
+
+        alert("Fasal aur bone ki date dalein.");
+
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            "/api/crops",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    field_id: selectedField.id,
+
+                    crop: crop,
+
+                    variety: variety,
+
+                    sowing_date: sowingDate
+
+                })
             }
+        );
 
-            if (!isValidSeason(crop, date)) {
-                let confirmBtn = confirm(`⚠️ ALERT: ${crop} bone ka ye sahi samay nahi hai. Kya aap fir bhi ise save karna chahte hain?`);
-                if (!confirmBtn) return; 
+        const data = await response.json();
+
+        if (!data.success) {
+
+            alert(data.error);
+
+            return;
+        }
+
+        activeCrop = data.crop;
+
+        await loadCrops();
+
+    }
+
+    catch (error) {
+
+        alert("Crop save nahi hui.");
+
+    }
+
+}
+
+
+/* =========================================
+   COMPLETE CROP
+========================================= */
+
+async function completeCrop() {
+
+    if (!activeCrop) {
+        return;
+    }
+
+    const ok = confirm(
+        "Kya ye fasal harvest/complete ho gayi hai?"
+    );
+
+    if (!ok) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            "/api/crops/" +
+            activeCrop.id +
+            "/complete",
+            {
+                method: "POST"
             }
+        );
 
-            plots.push({ name, crop, date, area });
-            localStorage.setItem('farmerPlots', JSON.stringify(plots));
-            
-            document.getElementById('plotName').value = '';
-            document.getElementById('plotArea').value = '';
-            renderPlots();
+        const data = await response.json();
+
+        if (!data.success) {
+
+            alert(data.error);
+
+            return;
         }
 
-        const cropSchedules = {
-            "Soybean": [
-                { day: 20, action: "Kharpatwarnashak Spray" },
-                { day: 45, action: "NPK 19:19:19 + Fungicide" },
-                { day: 60, action: "Ampligo / Coragen (caterpillars)" }
-            ],
-            "Cotton": [
-                { day: 45, action: "NPK 0:52:34 for Square Formation" },
-                { day: 60, action: "Whitefly & Thrips control" },
-                { day: 90, action: "Boll development care" }
-            ],
-            "Chickpea": [
-                { day: 30, action: "First irrigation & NPK" },
-                { day: 50, action: "Foliar spray for flowering" }
-            ]
-        };
+        activeCrop = null;
 
-        function renderPlots() {
-            const container = document.getElementById('plotsContainer');
-            container.innerHTML = '';
-            
-            plots.forEach((plot, index) => {
-                const sowingDate = new Date(plot.date);
-                const diffDays = Math.ceil(Math.abs(new Date() - sowingDate) / (1000 * 60 * 60 * 24)); 
-                
-                let nextAction = "No immediate action";
-                let alertHtml = "";
-                
-                const schedule = cropSchedules[plot.crop] || [];
-                
-                for(let task of schedule) {
-                    if(diffDays <= task.day) {
-                        nextAction = `Day ${task.day}: ${task.action}`;
-                        if((task.day - diffDays) <= 3 && (task.day - diffDays) >= 0) {
-                            alertHtml = `<div class="alert-box">⚠️ Alert: Agle 3 din me spray scheduled hai. (1 Bigha = 5 Pump)</div>`;
-                        }
-                        break;
-                    }
-                }
+        document.getElementById(
+            "planSection"
+        ).classList.add("hidden");
 
-                container.innerHTML += `
-                    <div class="plot-item">
-                        <strong>${plot.name}</strong> (${plot.area} Bigha, ${plot.crop})<br>
-                        <span style="font-size: 13px; color: #555;">Crop Age: ${diffDays} Din</span><br>
-                        <span style="font-size: 13px; color: #2e7d32;">Plan: ${nextAction}</span>
-                        ${alertHtml}
-                        <button onclick="deletePlot(${index})" style="background: #d32f2f; padding: 5px; margin-top: 5px; font-size: 12px; width: auto;">Delete</button>
-                    </div>
-                `;
-            });
-        }
+        document.getElementById(
+            "chatSection"
+        ).classList.add("hidden");
 
-        function deletePlot(index) {
-            plots.splice(index, 1);
-            localStorage.setItem('farmerPlots', JSON.stringify(plots));
-            renderPlots();
-        }
+        await loadCrops();
 
-        async function detectDisease() {
-            let fileInput = document.getElementById('plantPhoto').files[0];
-            let cropSelect = document.getElementById('aiCropSelect').value;
-            
-            if (!fileInput) { alert("Pehle photo select karein!"); return; }
-            
-            let btn = document.getElementById('aiButton');
-            btn.innerHTML = "Processing..."; btn.style.backgroundColor = "#555";
-            
-            let formData = new FormData();
-            formData.append("file", fileInput);
-            formData.append("crop", cropSelect);
+    }
 
-            try {
-                let response = await fetch(BACKEND_URL + "/predict", { method: "POST", body: formData });
-                let data = await response.json();
-                
-                let resultBox = document.getElementById('aiResult');
-                resultBox.style.display = "block";
-                
-                if(data.success) {
-                    resultBox.innerHTML = `
-                        <strong>AI Advice:</strong><br>${data.treatment.replace(/\n/g, '<br>')}<br>
-                        <hr style="border: 0.5px solid #ccc;">
-                        <span style="color: red; font-size: 12px;">⚠️ ${data.alert}</span>
-                    `;
-                } else {
-                    resultBox.innerHTML = `<span style="color: red;">Error: ${data.error}</span>`;
-                }
-            } catch (error) {
-                alert("Server se connect nahi ho paya. Backend URL check karein.");
-            } finally {
-                btn.innerHTML = "Bimari Check Karein"; btn.style.backgroundColor = "#2e7d32";
+    catch (error) {
+
+        alert("Crop complete nahi hui.");
+
+    }
+
+}
+
+
+/* =========================================
+   CROP FEATURES
+========================================= */
+
+function showCropFeatures() {
+
+    if (!activeCrop) {
+        return;
+    }
+
+    document.getElementById(
+        "planSection"
+    ).classList.remove("hidden");
+
+    document.getElementById(
+        "chatSection"
+    ).classList.remove("hidden");
+
+    document.getElementById(
+        "cropSummary"
+    ).innerHTML = `
+        <b>${activeCrop.crop}</b>
+        • ${activeCrop.age_days} days
+        • ${selectedField.area_bigha} bigha
+    `;
+
+}
+
+
+/* =========================================
+   CROP STAGE
+========================================= */
+
+function estimateStage() {
+
+    if (!activeCrop) {
+        return "";
+    }
+
+    const age = Number(
+        activeCrop.age_days
+    );
+
+    const crop = activeCrop.crop.toLowerCase();
+
+    if (crop === "soybean") {
+
+        if (age < 20) return "Vegetative";
+
+        if (age < 45) return "Branching / Vegetative";
+
+        if (age < 65) return "Flowering";
+
+        if (age < 85) return "Pod Development";
+
+        return "Maturity";
+
+    }
+
+    if (crop === "cotton") {
+
+        if (age < 30) return "Vegetative";
+
+        if (age < 55) return "Square Formation";
+
+        if (age < 90) return "Flowering / Boll Formation";
+
+        if (age < 140) return "Boll Development";
+
+        return "Maturity";
+
+    }
+
+    if (crop === "wheat") {
+
+        if (age < 25) return "Early Growth";
+
+        if (age < 50) return "Tillering";
+
+        if (age < 75) return "Booting";
+
+        if (age < 100) return "Grain Filling";
+
+        return "Maturity";
+
+    }
+
+    if (age < 30) return "Early Growth";
+
+    if (age < 60) return "Vegetative / Flowering";
+
+    if (age < 90) return "Reproductive";
+
+    return "Maturity";
+
+}
+
+
+/* =========================================
+   GENERATE SMART PLAN
+========================================= */
+
+async function generatePlan() {
+
+    if (!activeCrop) {
+        return;
+    }
+
+    const loading = document.getElementById(
+        "planLoading"
+    );
+
+    const result = document.getElementById(
+        "planResult"
+    );
+
+    loading.classList.remove("hidden");
+    result.classList.add("hidden");
+
+    try {
+
+        const response = await fetch(
+            "/api/crop-plan",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    crop: activeCrop.crop,
+
+                    variety: activeCrop.variety,
+
+                    crop_age: activeCrop.age_days,
+
+                    stage: estimateStage(),
+
+                    area: selectedField.area_bigha,
+
+                    irrigation:
+                        "Recent irrigation data abhi available nahi",
+
+                    weather: currentWeather
+
+                })
             }
+        );
+
+        const data = await response.json();
+
+        loading.classList.add("hidden");
+
+        if (!data.success) {
+
+            result.innerText =
+                data.error || "AI plan unavailable.";
+
+            result.classList.remove("hidden");
+
+            return;
         }
 
-        window.onload = () => { 
-            fetchWeather(); 
-            fetchMandiData(); 
-            renderPlots(); 
-        };
-    </script>
+        result.innerText = data.plan;
+
+        result.classList.remove("hidden");
+
+    }
+
+    catch (error) {
+
+        loading.classList.add("hidden");
+
+        result.innerText =
+            "AI plan abhi unavailable hai.";
+
+        result.classList.remove("hidden");
+
+    }
+
+}
+
+
+/* =========================================
+   AI CHAT
+========================================= */
+
+async function sendChat() {
+
+    const input = document.getElementById(
+        "chatInput"
+    );
+
+    const question = input.value.trim();
+
+    if (!question) {
+        return;
+    }
+
+    if (!activeCrop) {
+
+        alert("Pehle active crop select karein.");
+
+        return;
+    }
+
+    addChatMessage(
+        question,
+        "user"
+    );
+
+    input.value = "";
+
+    const waitingId =
+        "wait-" + Date.now();
+
+    const chatBox =
+        document.getElementById("chatBox");
+
+    const waitDiv =
+        document.createElement("div");
+
+    waitDiv.id = waitingId;
+
+    waitDiv.className =
+        "message ai-message loading";
+
+    waitDiv.innerText =
+        "AI soch raha hai...";
+
+    chatBox.appendChild(waitDiv);
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+    try {
+
+        const response = await fetch(
+            "/api/chat",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    message: question,
+
+                    crop: activeCrop.crop,
+
+                    crop_age: activeCrop.age_days,
+
+                    stage: estimateStage(),
+
+                    field_name: selectedField.name,
+
+                    irrigation:
+                        "Recent irrigation data abhi available nahi",
+
+                    weather: currentWeather
+
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        document.getElementById(
+            waitingId
+        ).remove();
+
+        if (!data.success) {
+
+            addChatMessage(
+                data.error || "AI unavailable hai.",
+                "ai"
+            );
+
+            return;
+        }
+
+        addChatMessage(
+            data.answer,
+            "ai"
+        );
+
+    }
+
+    catch (error) {
+
+        const waiting =
+            document.getElementById(waitingId);
+
+        if (waiting) {
+            waiting.remove();
+        }
+
+        addChatMessage(
+            "AI service abhi available nahi hai.",
+            "ai"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   ADD CHAT MESSAGE
+========================================= */
+
+function addChatMessage(text, type) {
+
+    const chatBox = document.getElementById(
+        "chatBox"
+    );
+
+    const div = document.createElement("div");
+
+    div.className =
+        "message " +
+        (
+            type === "user"
+            ? "user-message"
+            : "ai-message"
+        );
+
+    div.innerText = text;
+
+    chatBox.appendChild(div);
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+}
+
+
+/* =========================================
+   SERVICE WORKER
+========================================= */
+
+if ("serviceWorker" in navigator) {
+
+    navigator.serviceWorker.register(
+        "/service-worker.js"
+    ).catch(function () {});
+
+}
+
+</script>
+
 </body>
 </html>
