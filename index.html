@@ -61,7 +61,6 @@
         }
 
         input,
-        select,
         textarea,
         button {
             width: 100%;
@@ -85,16 +84,20 @@
             cursor: pointer;
         }
 
-        button.secondary {
-            background: #475569;
-        }
-
-        button.warning {
-            background: #b45309;
-        }
-
         button.red {
             background: #b91c1c;
+        }
+
+        .small {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .label {
+            display: block;
+            margin-top: 12px;
+            font-size: 14px;
+            font-weight: bold;
         }
 
         .info {
@@ -116,11 +119,6 @@
         .weather {
             font-size: 16px;
             font-weight: bold;
-        }
-
-        .small {
-            font-size: 13px;
-            color: #666;
         }
 
         .field-card {
@@ -178,22 +176,6 @@
             color: #666;
             font-style: italic;
         }
-
-        .nav {
-            position: sticky;
-            bottom: 0;
-            background: white;
-            border-top: 1px solid #ddd;
-            padding: 8px;
-            display: flex;
-            gap: 5px;
-        }
-
-        .nav button {
-            margin: 0;
-            font-size: 12px;
-            padding: 9px 4px;
-        }
     </style>
 </head>
 
@@ -201,15 +183,15 @@
 
 <header>
     <h1>🌾 JaiKisaan AI</h1>
-    <p>AI aapke khet ka digital sahayak</p>
+    <p>Aapke khet ka digital sahayak</p>
 </header>
-
 
 <div class="container">
 
-    <!-- LOGIN / REGISTRATION -->
+    <!-- LOGIN -->
 
     <div id="loginSection" class="card">
+
         <h2>📱 Kisan Registration</h2>
 
         <input
@@ -229,73 +211,139 @@
             Start JaiKisaan
         </button>
 
-        <p class="small">
-            Mobile number se aapka khet aur fasal data save rahega.
-        </p>
     </div>
 
 
-    <!-- MAIN APP -->
+    <!-- APP -->
 
     <div id="appSection" class="hidden">
 
         <!-- FARMER -->
 
         <div class="card">
-            <h2>👨‍🌾 Namaste <span id="farmerDisplayName"></span></h2>
+
+            <h2>
+                👨‍🌾 Namaste
+                <span id="farmerDisplayName"></span>
+            </h2>
 
             <div class="small">
                 Mobile:
                 <span id="farmerDisplayMobile"></span>
             </div>
+
         </div>
 
 
         <!-- WEATHER -->
 
         <div class="card">
+
             <h2>🌦️ Mausam</h2>
 
             <div id="weatherText" class="weather">
                 Mausam load ho raha hai...
             </div>
 
-            <div id="weatherRisk" class="warning-box hidden"></div>
+            <div
+                id="weatherRisk"
+                class="warning-box hidden"
+            ></div>
+
         </div>
 
 
-        <!-- ADD FIELD -->
+        <!-- ADD FIELD + CROP -->
 
         <div class="card">
+
             <h2>🌱 Naya Khet Add Karein</h2>
+
+            <label class="label">
+                Khet ka naam
+            </label>
 
             <input
                 id="fieldName"
                 type="text"
-                placeholder="Khet ka naam - jaise Baadi"
+                placeholder="Jaise Baadi, Semalwala"
             >
+
+            <label class="label">
+                Area
+            </label>
 
             <input
                 id="fieldArea"
                 type="number"
                 step="0.1"
-                placeholder="Area bigha me"
+                placeholder="Bigha me area"
             >
 
-            <button onclick="addField()">
+
+            <hr style="margin:18px 0;border:none;border-top:1px solid #ddd;">
+
+
+            <h3>🌾 Fasal</h3>
+
+            <div class="small">
+                List me fasal na mile to uska naam khud type karein.
+            </div>
+
+            <input
+                id="newFieldCrop"
+                type="text"
+                list="cropMasterList"
+                autocomplete="off"
+                placeholder="Jaise Soybean, Kabuli Chana"
+            >
+
+            <datalist id="cropMasterList"></datalist>
+
+
+            <label class="label">
+                Variety
+                <span class="small">(Optional)</span>
+            </label>
+
+            <input
+                id="newFieldVariety"
+                type="text"
+                placeholder="Jaise JS 9560"
+            >
+
+
+            <label class="label">
+                Bone ki date
+            </label>
+
+            <input
+                id="newFieldSowingDate"
+                type="date"
+            >
+
+
+            <button onclick="addFieldWithCrop()">
                 Khet Save Karein
             </button>
+
+            <div class="small" style="margin-top:8px;">
+                Agar abhi fasal nahi lagi hai to crop aur sowing date blank chhod sakte hain.
+            </div>
+
         </div>
 
 
         <!-- FIELDS -->
 
         <div class="card">
+
             <h2>🚜 Mere Khet</h2>
 
             <div id="fieldsList">
                 Loading...
             </div>
+
         </div>
 
 
@@ -309,28 +357,37 @@
 
             <div id="activeCropBox"></div>
 
+
+            <!-- ADD CROP LATER -->
+
             <div id="newCropForm">
 
-                <h3>Nayi Fasal</h3>
+                <h3>Nayi Fasal Lagayein</h3>
 
-                <select id="cropName">
-                    <option value="">Fasal select karein</option>
-                    <option value="Soybean">Soybean</option>
-                    <option value="Cotton">Cotton</option>
-                    <option value="Wheat">Wheat</option>
-                    <option value="Chana">Chana</option>
-                    <option value="Maize">Makka</option>
-                    <option value="Onion">Pyaj</option>
-                    <option value="Other">Other</option>
-                </select>
+                <div class="small">
+                    List me fasal na ho to manually type karein.
+                </div>
+
+                <input
+                    id="cropName"
+                    type="text"
+                    list="cropMasterList"
+                    autocomplete="off"
+                    placeholder="Fasal ka naam"
+                >
+
+                <label class="label">
+                    Variety
+                    <span class="small">(Optional)</span>
+                </label>
 
                 <input
                     id="cropVariety"
                     type="text"
-                    placeholder="Variety - jaise JS 9560"
+                    placeholder="Variety optional"
                 >
 
-                <label class="small">
+                <label class="label">
                     Bone ki date
                 </label>
 
@@ -348,23 +405,26 @@
         </div>
 
 
-        <!-- SMART PLAN -->
+        <!-- PLAN -->
 
         <div id="planSection" class="card hidden">
 
-            <h2>🤖 Aaj Mere Khet Me Kya Karna Hai?</h2>
+            <h2>🤖 Fasal Ka Smart Plan</h2>
 
-            <div id="cropSummary" class="info"></div>
+            <div
+                id="cropSummary"
+                class="info"
+            ></div>
 
             <button onclick="generatePlan()">
-                Smart AI Plan Banayein
+                Poora Crop Plan Banayein
             </button>
 
             <div
                 id="planLoading"
                 class="loading hidden"
             >
-                AI aapki fasal, age aur weather dekh raha hai...
+                AI fasal ka plan bana raha hai...
             </div>
 
             <div
@@ -375,28 +435,28 @@
         </div>
 
 
-        <!-- AI CHAT -->
+        <!-- CHAT -->
 
         <div id="chatSection" class="card hidden">
 
             <h2>💬 JaiKisaan AI se Puchhein</h2>
 
             <div class="small">
-                Fasal, spray, rog, nutrition ya weather ke baare me sawal puchhein.
+                Fasal, rog, spray, nutrition ya mausam ke baare me sawal puchhein.
             </div>
 
             <div id="chatBox" class="chat-box">
 
                 <div class="message ai-message">
                     Namaste Kisan bhai 👋
-                    Apni fasal ki problem simple language me bataiye.
+                    Apni fasal ki problem bataiye.
                 </div>
 
             </div>
 
             <textarea
                 id="chatInput"
-                placeholder="Jaise: soybean ki patti pili ho rahi hai, kya karu?"
+                placeholder="Jaise: patti pili ho rahi hai, kya karu?"
             ></textarea>
 
             <button onclick="sendChat()">
@@ -410,10 +470,10 @@
 
         <div class="card">
 
-            <h2>📈 Dhamnod Mandi Bhav</h2>
+            <h2>📈 Dhamnod Mandi</h2>
 
-            <div id="mandiResult">
-                Live mandi API abhi connect nahi hai.
+            <div class="small">
+                Live mandi API baad me connect hogi.
             </div>
 
         </div>
@@ -429,15 +489,20 @@ let farmer = null;
 let selectedField = null;
 let activeCrop = null;
 let currentWeather = "";
+let cropMaster = [];
 
 
-/* =========================================
+/* =========================================================
    INIT
-========================================= */
+========================================================= */
 
-window.addEventListener("load", function () {
+window.addEventListener("load", async function () {
 
-    const savedFarmer = localStorage.getItem("jaiKisaanFarmer");
+    await loadCropMaster();
+    await loadWeather();
+
+    const savedFarmer =
+        localStorage.getItem("jaiKisaanFarmer");
 
     if (savedFarmer) {
 
@@ -447,32 +512,88 @@ window.addEventListener("load", function () {
 
     }
 
-    loadWeather();
-
 });
 
 
-/* =========================================
-   REGISTER FARMER
-========================================= */
+/* =========================================================
+   CROP MASTER
+========================================================= */
+
+async function loadCropMaster() {
+
+    try {
+
+        const response = await fetch(
+            "/api/crop-master"
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+            return;
+        }
+
+        cropMaster = data.crops || [];
+
+        renderCropMaster();
+
+    } catch (error) {
+
+        console.log(
+            "Crop master unavailable"
+        );
+
+    }
+
+}
+
+
+function renderCropMaster() {
+
+    const list = document.getElementById(
+        "cropMasterList"
+    );
+
+    list.innerHTML = "";
+
+    cropMaster.forEach(function(crop) {
+
+        const option =
+            document.createElement("option");
+
+        option.value = crop.name;
+
+        list.appendChild(option);
+
+    });
+
+}
+
+
+/* =========================================================
+   REGISTER
+========================================================= */
 
 async function registerFarmer() {
 
-    const name = document
-        .getElementById("farmerName")
-        .value
-        .trim();
+    const name =
+        document.getElementById(
+            "farmerName"
+        ).value.trim();
 
-    const mobile = document
-        .getElementById("farmerMobile")
-        .value
-        .trim();
+    const mobile =
+        document.getElementById(
+            "farmerMobile"
+        ).value.trim();
 
     if (!name || mobile.length !== 10) {
 
-        alert("Naam aur valid 10 digit mobile number dalein.");
+        alert(
+            "Naam aur valid 10 digit mobile number dalein."
+        );
 
         return;
+
     }
 
     try {
@@ -483,7 +604,8 @@ async function registerFarmer() {
                 method: "POST",
 
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type":
+                    "application/json"
                 },
 
                 body: JSON.stringify({
@@ -493,13 +615,18 @@ async function registerFarmer() {
             }
         );
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         if (!data.success) {
 
-            alert(data.error || "Registration failed.");
+            alert(
+                data.error ||
+                "Registration failed."
+            );
 
             return;
+
         }
 
         farmer = data.farmer;
@@ -513,27 +640,28 @@ async function registerFarmer() {
 
     } catch (error) {
 
-        alert("Registration server error.");
+        alert(
+            "Registration server error."
+        );
 
     }
+
 }
 
 
-/* =========================================
+/* =========================================================
    SHOW APP
-========================================= */
+========================================================= */
 
 function showApp() {
 
-    document
-        .getElementById("loginSection")
-        .classList
-        .add("hidden");
+    document.getElementById(
+        "loginSection"
+    ).classList.add("hidden");
 
-    document
-        .getElementById("appSection")
-        .classList
-        .remove("hidden");
+    document.getElementById(
+        "appSection"
+    ).classList.remove("hidden");
 
     document.getElementById(
         "farmerDisplayName"
@@ -544,43 +672,51 @@ function showApp() {
     ).innerText = farmer.mobile;
 
     loadFields();
+
 }
 
 
-/* =========================================
+/* =========================================================
    WEATHER
-========================================= */
+========================================================= */
 
 async function loadWeather() {
 
     try {
 
-        const response = await fetch(
-            "/api/weather"
-        );
+        const response =
+            await fetch("/api/weather");
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         if (!data.success) {
 
             document.getElementById(
                 "weatherText"
-            ).innerText = "Weather unavailable";
+            ).innerText =
+                "Weather unavailable";
 
             return;
+
         }
 
-        currentWeather = data.weather;
+        currentWeather =
+            data.weather || "";
 
         document.getElementById(
             "weatherText"
-        ).innerText = data.weather;
+        ).innerText =
+            data.weather;
 
-        const riskBox = document.getElementById(
-            "weatherRisk"
-        );
+
+        const riskBox =
+            document.getElementById(
+                "weatherRisk"
+            );
 
         let risk = "";
+
 
         if (
             data.rain !== null &&
@@ -588,7 +724,7 @@ async function loadWeather() {
         ) {
 
             risk =
-                "⚠️ Barish record ho rahi hai. Spray se pehle weather check karein.";
+                "⚠️ Barish ho rahi hai. Spray se pehle mausam check karein.";
 
         }
 
@@ -602,133 +738,287 @@ async function loadWeather() {
 
         }
 
+
         if (risk) {
 
             riskBox.innerText = risk;
-            riskBox.classList.remove("hidden");
+
+            riskBox.classList.remove(
+                "hidden"
+            );
+
+        } else {
+
+            riskBox.classList.add(
+                "hidden"
+            );
 
         }
 
-        else {
-
-            riskBox.classList.add("hidden");
-
-        }
-
-    }
-
-    catch (error) {
+    } catch (error) {
 
         document.getElementById(
             "weatherText"
-        ).innerText = "Weather unavailable";
+        ).innerText =
+            "Weather unavailable";
 
     }
 
 }
 
 
-/* =========================================
-   ADD FIELD
-========================================= */
+/* =========================================================
+   ADD FIELD + OPTIONAL CROP
+========================================================= */
 
-async function addField() {
+async function addFieldWithCrop() {
 
-    const fieldName = document
-        .getElementById("fieldName")
-        .value
-        .trim();
+    const fieldName =
+        document.getElementById(
+            "fieldName"
+        ).value.trim();
 
-    const area = document
-        .getElementById("fieldArea")
-        .value;
+    const area =
+        document.getElementById(
+            "fieldArea"
+        ).value;
+
+    const crop =
+        document.getElementById(
+            "newFieldCrop"
+        ).value.trim();
+
+    const variety =
+        document.getElementById(
+            "newFieldVariety"
+        ).value.trim();
+
+    const sowingDate =
+        document.getElementById(
+            "newFieldSowingDate"
+        ).value;
+
 
     if (!fieldName || !area) {
 
-        alert("Khet ka naam aur area dalein.");
+        alert(
+            "Khet ka naam aur area dalein."
+        );
 
         return;
+
     }
+
+
+    if (crop && !sowingDate) {
+
+        alert(
+            "Fasal dali hai to bone ki date bhi dalein."
+        );
+
+        return;
+
+    }
+
+
+    if (!crop && sowingDate) {
+
+        alert(
+            "Bone ki date dali hai to fasal ka naam bhi dalein."
+        );
+
+        return;
+
+    }
+
 
     try {
 
-        const response = await fetch(
-            "/api/fields",
-            {
-                method: "POST",
+        const fieldResponse =
+            await fetch(
+                "/api/fields",
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    headers: {
+                        "Content-Type":
+                        "application/json"
+                    },
 
-                body: JSON.stringify({
+                    body: JSON.stringify({
 
-                    farmer_id: farmer.id,
+                        farmer_id:
+                            farmer.id,
 
-                    field_name: fieldName,
+                        field_name:
+                            fieldName,
 
-                    area: Number(area)
+                        area:
+                            Number(area)
 
-                })
-            }
-        );
+                    })
 
-        const data = await response.json();
+                }
+            );
 
-        if (!data.success) {
 
-            alert(data.error);
+        const fieldData =
+            await fieldResponse.json();
+
+
+        if (!fieldData.success) {
+
+            alert(fieldData.error);
 
             return;
+
         }
 
-        document.getElementById(
-            "fieldName"
-        ).value = "";
 
-        document.getElementById(
-            "fieldArea"
-        ).value = "";
+        const newField =
+            fieldData.field;
 
-        loadFields();
 
-    }
+        /* Crop bhi diya ho */
 
-    catch (error) {
+        if (crop) {
 
-        alert("Khet save nahi hua.");
+            const cropResponse =
+                await fetch(
+                    "/api/crops",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                            "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                farmer_id:
+                                    farmer.id,
+
+                                field_id:
+                                    newField.id,
+
+                                crop:
+                                    crop,
+
+                                variety:
+                                    variety,
+
+                                sowing_date:
+                                    sowingDate
+
+                            })
+
+                    }
+                );
+
+
+            const cropData =
+                await cropResponse.json();
+
+
+            if (!cropData.success) {
+
+                alert(
+                    "Khet save ho gaya, lekin fasal save nahi hui: " +
+                    cropData.error
+                );
+
+            } else {
+
+                await loadCropMaster();
+
+            }
+
+        }
+
+
+        clearNewFieldForm();
+
+        await loadFields();
+
+
+        alert(
+            "Khet successfully save ho gaya."
+        );
+
+
+    } catch (error) {
+
+        alert(
+            "Khet save karne me problem hui."
+        );
 
     }
 
 }
 
 
-/* =========================================
+function clearNewFieldForm() {
+
+    document.getElementById(
+        "fieldName"
+    ).value = "";
+
+    document.getElementById(
+        "fieldArea"
+    ).value = "";
+
+    document.getElementById(
+        "newFieldCrop"
+    ).value = "";
+
+    document.getElementById(
+        "newFieldVariety"
+    ).value = "";
+
+    document.getElementById(
+        "newFieldSowingDate"
+    ).value = "";
+
+}
+
+
+/* =========================================================
    LOAD FIELDS
-========================================= */
+========================================================= */
 
 async function loadFields() {
 
-    const box = document.getElementById(
-        "fieldsList"
-    );
+    const box =
+        document.getElementById(
+            "fieldsList"
+        );
 
     box.innerHTML = "Loading...";
 
+
     try {
 
-        const response = await fetch(
-            "/api/fields/" + farmer.id
-        );
+        const response =
+            await fetch(
+                "/api/fields/" +
+                farmer.id
+            );
 
-        const data = await response.json();
+        const data =
+            await response.json();
+
 
         if (!data.success) {
 
-            box.innerHTML = data.error;
+            box.innerHTML =
+                data.error;
 
             return;
+
         }
+
 
         if (!data.fields.length) {
 
@@ -736,37 +1026,56 @@ async function loadFields() {
                 "<div class='small'>Abhi koi khet add nahi hai.</div>";
 
             return;
+
         }
+
 
         box.innerHTML = "";
 
-        data.fields.forEach(function(field) {
 
-            const div = document.createElement("div");
+        data.fields.forEach(
+            function(field) {
 
-            div.className = "field-card";
+                const div =
+                    document.createElement(
+                        "div"
+                    );
 
-            div.innerHTML = `
-                <b>🌱 ${field.name}</b>
-                <div class="small">
-                    ${field.area_bigha} bigha
-                    • ${field.soil_type || "Heavy Black Soil"}
-                </div>
+                div.className =
+                    "field-card";
 
-                <button
-                    onclick='selectField(${JSON.stringify(field)})'
-                >
-                    Khet Kholein
-                </button>
-            `;
 
-            box.appendChild(div);
+                div.innerHTML = `
+                    <b>🌱 ${escapeHtml(field.name)}</b>
 
-        });
+                    <div class="small">
+                        ${field.area_bigha} bigha
+                        • ${escapeHtml(field.soil_type || "Heavy Black Soil")}
+                    </div>
 
-    }
+                    <button>
+                        Khet Kholein
+                    </button>
+                `;
 
-    catch (error) {
+
+                div.querySelector(
+                    "button"
+                ).addEventListener(
+                    "click",
+                    function() {
+                        selectField(field);
+                    }
+                );
+
+
+                box.appendChild(div);
+
+            }
+        );
+
+
+    } catch (error) {
 
         box.innerHTML =
             "Fields load nahi hue.";
@@ -776,108 +1085,169 @@ async function loadFields() {
 }
 
 
-/* =========================================
+/* =========================================================
    SELECT FIELD
-========================================= */
+========================================================= */
 
 async function selectField(field) {
 
     selectedField = field;
+
     activeCrop = null;
+
 
     document.getElementById(
         "selectedFieldName"
-    ).innerText = field.name;
+    ).innerText =
+        field.name;
+
 
     document.getElementById(
         "cropSection"
-    ).classList.remove("hidden");
+    ).classList.remove(
+        "hidden"
+    );
+
 
     document.getElementById(
         "planSection"
-    ).classList.add("hidden");
+    ).classList.add(
+        "hidden"
+    );
+
 
     document.getElementById(
         "chatSection"
-    ).classList.add("hidden");
+    ).classList.add(
+        "hidden"
+    );
+
 
     await loadCrops();
+
+
+    document.getElementById(
+        "cropSection"
+    ).scrollIntoView({
+        behavior: "smooth"
+    });
 
 }
 
 
-/* =========================================
+/* =========================================================
    LOAD CROPS
-========================================= */
+========================================================= */
 
 async function loadCrops() {
 
-    const cropBox = document.getElementById(
-        "activeCropBox"
-    );
+    const cropBox =
+        document.getElementById(
+            "activeCropBox"
+        );
 
-    cropBox.innerHTML = "Crop load ho rahi hai...";
+
+    cropBox.innerHTML =
+        "Crop load ho rahi hai...";
+
 
     try {
 
-        const response = await fetch(
-            "/api/crops/" + selectedField.id
-        );
+        const response =
+            await fetch(
+                "/api/crops/" +
+                selectedField.id
+            );
 
-        const data = await response.json();
+        const data =
+            await response.json();
+
 
         if (!data.success) {
 
-            cropBox.innerHTML = data.error;
+            cropBox.innerHTML =
+                data.error;
 
             return;
+
         }
 
-        activeCrop = data.crops.find(
-            crop => crop.status === "active"
-        );
+
+        activeCrop =
+            data.crops.find(
+                crop =>
+                    crop.status ===
+                    "active"
+            );
+
 
         if (!activeCrop) {
 
-            cropBox.innerHTML =
-                "<div class='info'>Is khet me abhi active fasal nahi hai.</div>";
+            cropBox.innerHTML = `
+                <div class="info">
+                    Is khet me abhi active fasal nahi hai.
+                </div>
+            `;
+
 
             document.getElementById(
                 "newCropForm"
-            ).classList.remove("hidden");
+            ).classList.remove(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "planSection"
+            ).classList.add(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "chatSection"
+            ).classList.add(
+                "hidden"
+            );
+
 
             return;
+
         }
+
 
         document.getElementById(
             "newCropForm"
-        ).classList.add("hidden");
+        ).classList.add(
+            "hidden"
+        );
+
 
         cropBox.innerHTML = `
             <div class="active-crop">
 
                 <b>
-                    🌾 ${activeCrop.crop}
+                    🌾 ${escapeHtml(activeCrop.crop)}
                 </b>
 
                 <div>
                     Variety:
-                    ${activeCrop.variety || "Not entered"}
+                    ${escapeHtml(activeCrop.variety || "Not entered")}
                 </div>
 
                 <div>
-                    Age:
-                    <b>${activeCrop.age_days} days</b>
+                    Crop Age:
+                    <b>${activeCrop.age_days} din</b>
                 </div>
 
                 <div>
                     Sowing:
-                    ${activeCrop.sowing_date}
+                    ${escapeHtml(activeCrop.sowing_date)}
                 </div>
 
                 <button
+                    id="completeCropButton"
                     class="red"
-                    onclick="completeCrop()"
                 >
                     Crop Complete / Harvested
                 </button>
@@ -885,11 +1255,19 @@ async function loadCrops() {
             </div>
         `;
 
+
+        document.getElementById(
+            "completeCropButton"
+        ).addEventListener(
+            "click",
+            completeCrop
+        );
+
+
         showCropFeatures();
 
-    }
 
-    catch (error) {
+    } catch (error) {
 
         cropBox.innerHTML =
             "Crop load nahi hui.";
@@ -899,84 +1277,121 @@ async function loadCrops() {
 }
 
 
-/* =========================================
-   START CROP
-========================================= */
+/* =========================================================
+   START CROP IN EXISTING FIELD
+========================================================= */
 
 async function startCrop() {
 
-    const crop = document
-        .getElementById("cropName")
-        .value;
+    const crop =
+        document.getElementById(
+            "cropName"
+        ).value.trim();
 
-    const variety = document
-        .getElementById("cropVariety")
-        .value
-        .trim();
+    const variety =
+        document.getElementById(
+            "cropVariety"
+        ).value.trim();
 
-    const sowingDate = document
-        .getElementById("sowingDate")
-        .value;
+    const sowingDate =
+        document.getElementById(
+            "sowingDate"
+        ).value;
+
 
     if (!crop || !sowingDate) {
 
-        alert("Fasal aur bone ki date dalein.");
+        alert(
+            "Fasal aur bone ki date dalein."
+        );
 
         return;
+
     }
+
 
     try {
 
-        const response = await fetch(
-            "/api/crops",
-            {
-                method: "POST",
+        const response =
+            await fetch(
+                "/api/crops",
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    headers: {
+                        "Content-Type":
+                        "application/json"
+                    },
 
-                body: JSON.stringify({
+                    body:
+                        JSON.stringify({
 
-                    field_id: selectedField.id,
+                            farmer_id:
+                                farmer.id,
 
-                    crop: crop,
+                            field_id:
+                                selectedField.id,
 
-                    variety: variety,
+                            crop:
+                                crop,
 
-                    sowing_date: sowingDate
+                            variety:
+                                variety,
 
-                })
-            }
-        );
+                            sowing_date:
+                                sowingDate
 
-        const data = await response.json();
+                        })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
 
         if (!data.success) {
 
             alert(data.error);
 
             return;
+
         }
 
-        activeCrop = data.crop;
+
+        document.getElementById(
+            "cropName"
+        ).value = "";
+
+        document.getElementById(
+            "cropVariety"
+        ).value = "";
+
+        document.getElementById(
+            "sowingDate"
+        ).value = "";
+
+
+        await loadCropMaster();
 
         await loadCrops();
 
-    }
 
-    catch (error) {
+    } catch (error) {
 
-        alert("Crop save nahi hui.");
+        alert(
+            "Crop save nahi hui."
+        );
 
     }
 
 }
 
 
-/* =========================================
+/* =========================================================
    COMPLETE CROP
-========================================= */
+========================================================= */
 
 async function completeCrop() {
 
@@ -984,60 +1399,64 @@ async function completeCrop() {
         return;
     }
 
-    const ok = confirm(
-        "Kya ye fasal harvest/complete ho gayi hai?"
-    );
+
+    const ok =
+        confirm(
+            "Kya ye fasal harvest/complete ho gayi hai?"
+        );
+
 
     if (!ok) {
         return;
     }
 
+
     try {
 
-        const response = await fetch(
-            "/api/crops/" +
-            activeCrop.id +
-            "/complete",
-            {
-                method: "POST"
-            }
-        );
+        const response =
+            await fetch(
+                "/api/crops/" +
+                activeCrop.id +
+                "/complete",
+                {
+                    method: "POST"
+                }
+            );
 
-        const data = await response.json();
+
+        const data =
+            await response.json();
+
 
         if (!data.success) {
 
             alert(data.error);
 
             return;
+
         }
+
 
         activeCrop = null;
 
-        document.getElementById(
-            "planSection"
-        ).classList.add("hidden");
-
-        document.getElementById(
-            "chatSection"
-        ).classList.add("hidden");
 
         await loadCrops();
 
-    }
 
-    catch (error) {
+    } catch (error) {
 
-        alert("Crop complete nahi hui.");
+        alert(
+            "Crop complete nahi hui."
+        );
 
     }
 
 }
 
 
-/* =========================================
-   CROP FEATURES
-========================================= */
+/* =========================================================
+   SHOW CROP FEATURES
+========================================================= */
 
 function showCropFeatures() {
 
@@ -1045,28 +1464,35 @@ function showCropFeatures() {
         return;
     }
 
+
     document.getElementById(
         "planSection"
-    ).classList.remove("hidden");
+    ).classList.remove(
+        "hidden"
+    );
+
 
     document.getElementById(
         "chatSection"
-    ).classList.remove("hidden");
+    ).classList.remove(
+        "hidden"
+    );
+
 
     document.getElementById(
         "cropSummary"
     ).innerHTML = `
-        <b>${activeCrop.crop}</b>
-        • ${activeCrop.age_days} days
+        <b>${escapeHtml(activeCrop.crop)}</b>
+        • ${activeCrop.age_days} din
         • ${selectedField.area_bigha} bigha
     `;
 
 }
 
 
-/* =========================================
-   CROP STAGE
-========================================= */
+/* =========================================================
+   ESTIMATE STAGE
+========================================================= */
 
 function estimateStage() {
 
@@ -1074,68 +1500,83 @@ function estimateStage() {
         return "";
     }
 
-    const age = Number(
-        activeCrop.age_days
-    );
 
-    const crop = activeCrop.crop.toLowerCase();
+    const age =
+        Number(
+            activeCrop.age_days
+        );
+
+
+    const crop =
+        activeCrop.crop
+            .toLowerCase();
+
 
     if (crop === "soybean") {
 
-        if (age < 20) return "Vegetative";
+        if (age < 20)
+            return "Vegetative";
 
-        if (age < 45) return "Branching / Vegetative";
+        if (age < 45)
+            return "Branching / Vegetative";
 
-        if (age < 65) return "Flowering";
+        if (age < 65)
+            return "Flowering";
 
-        if (age < 85) return "Pod Development";
+        if (age < 85)
+            return "Pod Development";
 
         return "Maturity";
 
     }
+
 
     if (crop === "cotton") {
 
-        if (age < 30) return "Vegetative";
+        if (age < 30)
+            return "Vegetative";
 
-        if (age < 55) return "Square Formation";
+        if (age < 55)
+            return "Square Formation";
 
-        if (age < 90) return "Flowering / Boll Formation";
+        if (age < 90)
+            return "Flowering / Boll Formation";
 
-        if (age < 140) return "Boll Development";
+        if (age < 140)
+            return "Boll Development";
 
         return "Maturity";
 
     }
+
 
     if (crop === "wheat") {
 
-        if (age < 25) return "Early Growth";
+        if (age < 25)
+            return "Early Growth";
 
-        if (age < 50) return "Tillering";
+        if (age < 50)
+            return "Tillering";
 
-        if (age < 75) return "Booting";
+        if (age < 75)
+            return "Booting";
 
-        if (age < 100) return "Grain Filling";
+        if (age < 100)
+            return "Grain Filling";
 
         return "Maturity";
 
     }
 
-    if (age < 30) return "Early Growth";
 
-    if (age < 60) return "Vegetative / Flowering";
-
-    if (age < 90) return "Reproductive";
-
-    return "Maturity";
+    return "Current Crop Stage";
 
 }
 
 
-/* =========================================
-   GENERATE SMART PLAN
-========================================= */
+/* =========================================================
+   PLAN
+========================================================= */
 
 async function generatePlan() {
 
@@ -1143,198 +1584,293 @@ async function generatePlan() {
         return;
     }
 
-    const loading = document.getElementById(
-        "planLoading"
+
+    const loading =
+        document.getElementById(
+            "planLoading"
+        );
+
+    const result =
+        document.getElementById(
+            "planResult"
+        );
+
+
+    loading.classList.remove(
+        "hidden"
     );
 
-    const result = document.getElementById(
-        "planResult"
+    result.classList.add(
+        "hidden"
     );
 
-    loading.classList.remove("hidden");
-    result.classList.add("hidden");
 
     try {
 
-        const response = await fetch(
-            "/api/crop-plan",
-            {
-                method: "POST",
+        const response =
+            await fetch(
+                "/api/crop-plan",
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    headers: {
+                        "Content-Type":
+                        "application/json"
+                    },
 
-                body: JSON.stringify({
+                    body:
+                        JSON.stringify({
 
-                    crop: activeCrop.crop,
+                            crop:
+                                activeCrop.crop,
 
-                    variety: activeCrop.variety,
+                            variety:
+                                activeCrop.variety,
 
-                    crop_age: activeCrop.age_days,
+                            crop_age:
+                                activeCrop.age_days,
 
-                    stage: estimateStage(),
+                            stage:
+                                estimateStage(),
 
-                    area: selectedField.area_bigha,
+                            area:
+                                selectedField.area_bigha,
 
-                    irrigation:
-                        "Recent irrigation data abhi available nahi",
+                            irrigation:
+                                "Recent irrigation data unavailable",
 
-                    weather: currentWeather
+                            weather:
+                                currentWeather
 
-                })
-            }
+                        })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        loading.classList.add(
+            "hidden"
         );
 
-        const data = await response.json();
-
-        loading.classList.add("hidden");
 
         if (!data.success) {
 
             result.innerText =
-                data.error || "AI plan unavailable.";
+                data.error ||
+                "AI plan unavailable.";
 
-            result.classList.remove("hidden");
+            result.classList.remove(
+                "hidden"
+            );
 
             return;
+
         }
 
-        result.innerText = data.plan;
 
-        result.classList.remove("hidden");
+        result.innerText =
+            data.plan;
 
-    }
 
-    catch (error) {
+        result.classList.remove(
+            "hidden"
+        );
 
-        loading.classList.add("hidden");
+
+    } catch (error) {
+
+        loading.classList.add(
+            "hidden"
+        );
+
 
         result.innerText =
             "AI plan abhi unavailable hai.";
 
-        result.classList.remove("hidden");
+
+        result.classList.remove(
+            "hidden"
+        );
 
     }
 
 }
 
 
-/* =========================================
-   AI CHAT
-========================================= */
+/* =========================================================
+   CHAT
+========================================================= */
 
 async function sendChat() {
 
-    const input = document.getElementById(
-        "chatInput"
-    );
+    const input =
+        document.getElementById(
+            "chatInput"
+        );
 
-    const question = input.value.trim();
+
+    const question =
+        input.value.trim();
+
 
     if (!question) {
         return;
     }
 
+
     if (!activeCrop) {
 
-        alert("Pehle active crop select karein.");
+        alert(
+            "Pehle active crop select karein."
+        );
 
         return;
+
     }
+
 
     addChatMessage(
         question,
         "user"
     );
 
+
     input.value = "";
+
 
     const waitingId =
         "wait-" + Date.now();
 
+
     const chatBox =
-        document.getElementById("chatBox");
+        document.getElementById(
+            "chatBox"
+        );
+
 
     const waitDiv =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
-    waitDiv.id = waitingId;
+
+    waitDiv.id =
+        waitingId;
+
 
     waitDiv.className =
         "message ai-message loading";
 
-    waitDiv.innerText =
-        "AI soch raha hai...";
 
-    chatBox.appendChild(waitDiv);
+    waitDiv.innerText =
+        "AI jawab bana raha hai...";
+
+
+    chatBox.appendChild(
+        waitDiv
+    );
+
 
     chatBox.scrollTop =
         chatBox.scrollHeight;
 
+
     try {
 
-        const response = await fetch(
-            "/api/chat",
-            {
-                method: "POST",
+        const response =
+            await fetch(
+                "/api/chat",
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    headers: {
+                        "Content-Type":
+                        "application/json"
+                    },
 
-                body: JSON.stringify({
+                    body:
+                        JSON.stringify({
 
-                    message: question,
+                            message:
+                                question,
 
-                    crop: activeCrop.crop,
+                            crop:
+                                activeCrop.crop,
 
-                    crop_age: activeCrop.age_days,
+                            variety:
+                                activeCrop.variety,
 
-                    stage: estimateStage(),
+                            crop_age:
+                                activeCrop.age_days,
 
-                    field_name: selectedField.name,
+                            stage:
+                                estimateStage(),
 
-                    irrigation:
-                        "Recent irrigation data abhi available nahi",
+                            field_name:
+                                selectedField.name,
 
-                    weather: currentWeather
+                            irrigation:
+                                "Recent irrigation data unavailable",
 
-                })
-            }
-        );
+                            weather:
+                                currentWeather
 
-        const data = await response.json();
+                        })
 
-        document.getElementById(
-            waitingId
-        ).remove();
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        const waiting =
+            document.getElementById(
+                waitingId
+            );
+
+
+        if (waiting) {
+            waiting.remove();
+        }
+
 
         if (!data.success) {
 
             addChatMessage(
-                data.error || "AI unavailable hai.",
+                data.error ||
+                "AI unavailable hai.",
                 "ai"
             );
 
             return;
+
         }
+
 
         addChatMessage(
             data.answer,
             "ai"
         );
 
-    }
 
-    catch (error) {
+    } catch (error) {
 
         const waiting =
-            document.getElementById(waitingId);
+            document.getElementById(
+                waitingId
+            );
+
 
         if (waiting) {
             waiting.remove();
         }
+
 
         addChatMessage(
             "AI service abhi available nahi hai.",
@@ -1346,29 +1882,40 @@ async function sendChat() {
 }
 
 
-/* =========================================
-   ADD CHAT MESSAGE
-========================================= */
+function addChatMessage(
+    text,
+    type
+) {
 
-function addChatMessage(text, type) {
+    const chatBox =
+        document.getElementById(
+            "chatBox"
+        );
 
-    const chatBox = document.getElementById(
-        "chatBox"
-    );
 
-    const div = document.createElement("div");
+    const div =
+        document.createElement(
+            "div"
+        );
+
 
     div.className =
         "message " +
         (
             type === "user"
-            ? "user-message"
-            : "ai-message"
+                ? "user-message"
+                : "ai-message"
         );
 
-    div.innerText = text;
 
-    chatBox.appendChild(div);
+    div.innerText =
+        text;
+
+
+    chatBox.appendChild(
+        div
+    );
+
 
     chatBox.scrollTop =
         chatBox.scrollHeight;
@@ -1376,15 +1923,33 @@ function addChatMessage(text, type) {
 }
 
 
-/* =========================================
+/* =========================================================
+   SECURITY / DISPLAY
+========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+/* =========================================================
    SERVICE WORKER
-========================================= */
+========================================================= */
 
 if ("serviceWorker" in navigator) {
 
     navigator.serviceWorker.register(
         "/service-worker.js"
-    ).catch(function () {});
+    ).catch(
+        function() {}
+    );
 
 }
 
